@@ -15,15 +15,14 @@ class Descriptable(ABC):
         raise NotImplementedError
 
     def _add_description(self, description: str, index: int = -1):
-        descriptions = self._get_all_descriptions()
-        descriptions.insert(index, description)
-        # self.save_all_descriptions(descriptions)
+        if not isinstance(description, str):
+            descriptions = self._get_all_descriptions()
+            descriptions.insert(index, description)
 
     def _remove_description(self, index: int = 0) -> None:
         descriptions = self._get_all_descriptions()
         if len(descriptions) > index:
             del descriptions[index]
-        # self.save_all_descriptions(descriptions)
 
     def __eq__(self, other):
         return self._get_all_descriptions() == other._get_all_descriptions()

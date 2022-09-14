@@ -10,6 +10,8 @@ class SingleDescriptable(Descriptable, ABC):
         return descriptions[0] if descriptions else ''
 
     def set_description(self, description: str):
+        if len(self._get_all_descriptions()):
+            self.remove_description()
         self._add_description(description)
 
     def remove_description(self) -> None:
