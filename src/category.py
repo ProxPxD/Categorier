@@ -24,6 +24,10 @@ class Category(SingleDescriptable):
     def get_all_categories(cls):
         return list(cls._categories.values())
 
+    @classmethod
+    def remove_category(cls, name: str) -> None:
+        del cls._categories[name]
+
     def __init__(self, name: str, description: str = '', sub_categories: list = None):
         if name in Category._categories:
             raise ValueError

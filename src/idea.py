@@ -15,6 +15,12 @@ class Idea(MultiDescriptable):
         if descriptions:
             self.add_all_descriptions(descriptions)
 
+    def get_content(self):
+        return self._content
+
+    def get_categories(self):
+        return self._categories
+
     def _get_all_descriptions(self) -> list[str]:
         return self._description.get_all_descriptions()
 

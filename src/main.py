@@ -17,6 +17,7 @@ class Flags:
     SUBS = '-s'
     SHOW = 'show'
     IDEAS = 'ideas'
+    DELETE = 'del'
 
 
 def get_range_save(args: list[str], start: int, end: int = None) -> list[str] | str:
@@ -33,8 +34,8 @@ def get_idea(args: list[str]) -> Idea | None:
     if not args:
         return None
     content = args[0]
-    categories = get_range_save(args, 1)
     descriptions = parse_descriptions(args)
+    categories = get_range_save(args, 1)
     return Idea(content, categories, descriptions)
 
 
@@ -46,7 +47,10 @@ def get_new_category(args: list[str]) -> Category:
 
 
 def parse_descriptions(args: list[str]):
-    return parse_flag(args, Flags.DESCRIPTIONS)
+    descriptions = parse_flag(args, Flags.DESCRIPTIONS)
+    flag_index = args.index(Flags.DESCRIPTIONS)
+    del args[flag_index:]
+    return descriptions
 
 
 def parse_subs(args: list[str]):
@@ -54,7 +58,7 @@ def parse_subs(args: list[str]):
 
 
 def parse_flag(args: list[str], flag: str):
-    start = args.index(flag) if flag in args else None
+    start = args.index(flag) + 1 if flag in args else None
     return args[start:] if start is not None else []
 
 
@@ -64,19 +68,33 @@ def print_details(type: str):
 if __name__ == '__main__':
     args = sys.argv[1:]
     if not args:
-        args = [] or ['cat', 'debug_cat']
+        args = [] or ['tt', '-d', 'tete dede']
     ideasList = configurations.load_list(Saved.IDEAS_LIST_PATH)
     Category.load_categories()
-    if Flags.CATEGORY in args:
-        args.remove(Flags.CATEGORY)
-        cat = get_new_category(args)
-        configurations.save_list(Category.get_all_categories(), configurations.Saved.CATEGORIES_LIST_PATH)
-    elif Flags.SHOW in args:
+    if Flags.SHOW in args:
         arg = args[-1]
-        print()
+        if Flags.CATEGORY in args:
+            for i, category in enumerate(Category.get_all_categories()):
+                print(f'{i}: ', category)
+        else:
+            for i, idea in enumerate(ideasList):
+                print(f'{i}: ', idea)
+    elif Flags.CATEGORY in args:
+        args.remove(Flags.CATEGORY)
+        if Flags.DELETE in args:
+            args.remove(Flags.DELETE)
+            Category.remove_category(args[-1])
+        else:
+            cat = get_new_category(args)
+        configurations.save_list(Category.get_all_categories(), configurations.Saved.CATEGORIES_LIST_PATH)
     else:
-        ideasList.add(get_idea(args))
+        if Flags.DELETE in args:
+            args.remove(Flags.DELETE)
+            arg = args[-1]
+            if arg.isnumeric():
+                ideasList.remove(int(arg))
+            else:
+                ideasList.remove_by_name(arg)
+        else:
+            ideasList.add(get_idea(args))
         configurations.save_list(ideasList, Saved.IDEAS_LIST_PATH)
-    print('ideas:      ', ideasList)
-    print('categories: ', [str(cat) for cat in Category.get_all_categories()])
-

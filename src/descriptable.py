@@ -15,7 +15,7 @@ class Descriptable(ABC):
         raise NotImplementedError
 
     def _add_description(self, description: str, index: int = -1):
-        if not isinstance(description, str):
+        if isinstance(description, str):
             descriptions = self._get_all_descriptions()
             descriptions.insert(index, description)
 
