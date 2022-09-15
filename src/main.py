@@ -5,7 +5,7 @@ import sys
 from dataclasses import dataclass
 
 import configurations
-from configurations import Saved
+from configurations import Paths
 from idea import Idea
 from category import Category
 
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     args = sys.argv[1:]
     if not args:
         args = [] or ['tt', '-d', 'tete dede']
-    ideasList = configurations.load_list(Saved.IDEAS_LIST_PATH)
+    ideasList = configurations.load_list(Paths.IDEAS_LIST_PATH)
     Category.load_categories()
     if Flags.SHOW in args:
         arg = args[-1]
@@ -86,7 +86,7 @@ if __name__ == '__main__':
             Category.remove_category(args[-1])
         else:
             cat = get_new_category(args)
-        configurations.save_list(Category.get_all_categories(), configurations.Saved.CATEGORIES_LIST_PATH)
+        configurations.save_list(Category.get_all_categories(), configurations.Paths.CATEGORIES_LIST_PATH)
     else:
         if Flags.DELETE in args:
             args.remove(Flags.DELETE)
@@ -97,4 +97,4 @@ if __name__ == '__main__':
                 ideasList.remove_by_name(arg)
         else:
             ideasList.add(get_idea(args))
-        configurations.save_list(ideasList, Saved.IDEAS_LIST_PATH)
+        configurations.save_list(ideasList, Paths.IDEAS_LIST_PATH)

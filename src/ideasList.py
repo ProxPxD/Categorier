@@ -8,6 +8,15 @@ class IdeasList:
     def __init__(self):
         self._ideas: list[Idea] = []
 
+    def get(self, idea: str | int) -> Idea:
+        if isinstance(idea, int):
+            return self._ideas[idea] if idea < len(self._ideas) else None
+        else:
+            return self._get_by_name(idea)
+
+    def _get_by_name(self, name: str) -> Idea:
+        return next((idea for idea in self._ideas if idea.get_content() == name), None)
+
     def add(self, idea: Idea | str, categories: list[str | Category] = None):
         if not idea:
             return
@@ -20,7 +29,7 @@ class IdeasList:
             del self._ideas[index]
 
     def remove_by_name(self, name: str):
-        to_remove = next((idea for idea in self._ideas if idea.get_content() == name), None)
+        to_remove = self._get_by_name(name)
         if to_remove:
             self._ideas.remove(to_remove)
 

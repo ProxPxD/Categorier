@@ -8,7 +8,7 @@ class Category(SingleDescriptable):
 
     @classmethod
     def load_categories(cls):
-        cls._categories = {category.name: category for category in configurations.load_list(configurations.Saved.CATEGORIES_LIST_PATH)}
+        cls._categories = {category.name: category for category in configurations.load_list(configurations.Paths.CATEGORIES_LIST_PATH)}
 
     @classmethod
     def get_category(cls, name):
