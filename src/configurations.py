@@ -3,8 +3,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from ideasList import IdeasList
-
 
 @dataclass
 class Paths:
@@ -36,7 +34,7 @@ def save_list(list_to_save: Any, path: Path):
 
 def get_default_list(path: Path):
     if Paths.IDEAS_NAME in path.name:
-        return IdeasList()
+        return None
     elif Paths.CATEGORIES_NAME in path.name:
         return []
     return []

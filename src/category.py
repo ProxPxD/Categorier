@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from singleDescriptable import SingleDescriptable
 from description import Description
 import configurations
@@ -8,11 +10,17 @@ class Category(SingleDescriptable):
 
     @classmethod
     def load_categories(cls):
-        cls._categories = {category.name: category for category in configurations.load_list(configurations.Paths.CATEGORIES_LIST_PATH)}
+        cls._categories = {category.name: category for category in configurations.load_list(configurations.Paths.CATEGORIES_PATH)}
 
     @classmethod
-    def get_category(cls, name):
-        return cls._categories[name] if name in cls._categories else None
+    def get_category(cls, category: str | int):
+        if isinstance(category, int):
+            categories = cls.get_all_categories()
+            if category < len(categories):
+                return categories[category]
+        elif category in cls._categories:
+            return cls._categories[category]
+        return None
 
     @classmethod
     def get_categories(cls, names):
@@ -34,15 +42,18 @@ class Category(SingleDescriptable):
         Category._categories[name] = self
         self.name = name
         self._description = Description(description)
-        self._sub_categories = sub_categories or []
+        self._subcategories = sub_categories or []
 
     def _get_all_descriptions(self) -> list[str]:
         return self._description.get_all_descriptions()
 
+    def get_subcategories(self):
+        return self._subcategories
+
     def __str__(self):
         string = str(self.name)
-        if self._sub_categories:
-            sub_categories_str = str([str(category) for category in self._sub_categories])[1:-1]
+        if self._subcategories:
+            sub_categories_str = str([str(category) for category in self._subcategories])[1:-1]
             string += f'({sub_categories_str})'
         if self._description:
             string += f': {self._description}'

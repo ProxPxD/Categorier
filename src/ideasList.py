@@ -1,10 +1,23 @@
 from __future__ import annotations
 
+import configurations
 from category import Category
 from idea import Idea
 
 
 class IdeasList:
+
+    _ideas_list = None
+
+    @classmethod
+    def get(cls, test_mode=False):
+        if cls._ideas_list is None:
+            path = configurations.Paths.IDEAS_PATH if not test_mode else configurations.Paths.IDEAS_TESTS_PATH
+            cls._ideas_list = configurations.load_list(path)
+        if cls._ideas_list is None:
+            cls._ideas_list = cls()
+        return
+
     def __init__(self):
         self._ideas: list[Idea] = []
 
