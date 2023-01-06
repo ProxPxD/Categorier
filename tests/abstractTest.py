@@ -3,13 +3,6 @@ from __future__ import annotations
 import abc
 import unittest
 
-import commandManager
-import configurations
-from category import Category
-from configurations import Paths
-from ideasList import IdeasList
-from commandManager import Flags as F
-
 
 class AbstractTest(unittest.TestCase, abc.ABC):
 
