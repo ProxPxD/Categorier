@@ -1,6 +1,5 @@
 from abstractTest import AbstractTest
 
-from commandManager import Flags as F
 
 class IdeasTest(AbstractTest):
 
@@ -8,8 +7,8 @@ class IdeasTest(AbstractTest):
         name = 'default'
 
         self.execute(name)
-        by_index = self._ideas_list.get(0)
-        by_name = self._ideas_list.get(name)
+        by_index = self.ideas_list.get(0)
+        by_name = self.ideas_list.get(name)
 
         self.assertEqual(name, by_index.get_content())
         self.assertEqual(name, by_name.get_content())
@@ -19,7 +18,6 @@ class IdeasTest(AbstractTest):
         description = 'custom and detailed description'
         self.execute(f'{name} {F.DESCRIPTIONS} {description}')
 
-        category: Category = self.
 
         self.assertEqual(name, category.name)
         self.assertEqual(description, category.get_description())
