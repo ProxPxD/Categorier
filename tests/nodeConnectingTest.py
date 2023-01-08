@@ -109,3 +109,37 @@ class NodeConnectingTest(AbstractTest):
 
 		e_descendants = set(e_all_children) | set(*e_all_grandchildren)
 		self.assertCountEqual(e_descendants, list(node.get_all_ancestors_names()))
+
+	@parameterized.expand([
+		('normal_removal', [['p2']], ['c'], [['p1', 'p2']], ['p1']),
+		('common_parent', [['p1'], ['p3']], ['c1', 'c2'], [['p1', 'p2'], ['p2', 'p3']], ['p2']),
+	])
+	def test_remove_nodes(self, name: str, e_all_parents: list[str], children: list[str], all_parents: list[str], to_removes: list[str]):
+		for child, parents in zip(children, all_parents):
+			for parent in parents:
+				self.cli.parse(f'm {K.ADD_FULL} {parent}')
+			self.cli.parse(f'm {K.ADD_FULL} {child} {" ".join(parents)}')
+
+		for to_remove in to_removes:
+			self.cli.parse(f'm {K.DELETE_FULL} {to_remove}')  # TODO: correct test after addint the confirmation of the removal
+
+		for child, e_parents in zip(children, e_all_parents):
+			node = NodesManager.get_node(child)
+			self.assertCountEqual(e_parents, node.parents, 'parent node has not been deleted')
+
+	@parameterized.expand([
+		('normal_removal', [['c2']], ['p'], [['c1', 'c2']], ['c1']),
+		('common_children', [['c1'], ['c3']], ['p1', 'p2'], [['c1', 'c2'], ['c2', 'c3']], ['c2']),
+	])
+	def test_remove_nodes(self, name: str, e_all_children: list[str], parents: list[str], all_children: list[str], to_removes: list[str]):
+		for parent, children in zip(parents, all_children):
+			self.cli.parse(f'm {K.ADD_FULL} {parent}')
+			for child in children:
+				self.cli.parse(f'm {K.ADD_FULL} {child} {" ".join(parents)}')
+
+		for to_remove in to_removes:
+			self.cli.parse(f'm {K.DELETE_FULL} {to_remove}')  # TODO: correct test after addint the confirmation of the removal
+
+		for parent, e_children in zip(parents, e_all_children):
+			node = NodesManager.get_node(parent)
+			self.assertCountEqual(e_children, node.children, 'parent node has not been deleted')

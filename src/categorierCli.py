@@ -6,7 +6,8 @@ from smartcli import Cli
 @dataclass
 class Keywords:
 	ADD_FULL = 'add'
-	REMOVE_FULL = 'delete'
+	DELETE_FULL = 'delete'
+	DELETE_SHORT = 'del'
 
 # Examples:
 	# "add idea idea_name" == "add idea_name to idea" == "add to idea idea_name
