@@ -8,8 +8,8 @@ from typing import Iterable
 import yaml
 
 
-@dataclass
-class Paths(frozen=True):
+@dataclass(frozen=True)
+class Paths:
 	RESOURCES = Path(__file__).parent.parent / 'resources'
 	DATABASE = RESOURCES / 'data.yml'
 
@@ -124,6 +124,16 @@ class NodesStorage(ABC):
 	def has_in_flattened_members(self, to_check: str):
 		return to_check not in self.get_all_member_names_flattened()
 
+	def get_final_members(self) -> Iterable[str]:
+		to_extend = self._names[:]
+		while to_extend:
+			name = to_extend.pop()
+			node = NodesManager.get_node(name)
+			if not len(node.parents):
+				yield name
+			else:
+				to_extend.extend(node.parents.get_names())
+
 	def get(self, name: str) -> Node:
 		if name in self._names:
 			return NodesManager.get_node(name)
@@ -195,6 +205,12 @@ class Node:
 
 	def get_all_descendants_names(self) -> Iterable[str]:
 		return self.children.get_all_member_names_flattened()
+
+	def get_final_ancestors(self) -> Iterable:
+		return self.parents.get_final_members()
+
+	def get_final_descendants(self) -> Iterable:
+		return self.children.get_final_members()
 
 	# modifying nodes
 
