@@ -42,13 +42,20 @@ class DataManager:
 
 class NodesManager(DataManager):
 
-	_taken_nodes = set()
+	_taken_nodes = dict()
 
 	@classmethod
 	def get_node(cls, name: str) -> Node:
+		try:
+			return cls._taken_nodes[name]
+		except KeyError:
+			return cls._get_node_from_data(name)
+
+	@classmethod
+	def _get_node_from_data(cls, name: str) -> Node:
 		node_data = cls._data[name]
 		node = cls.create_node_from_data(name, node_data)
-		cls._taken_nodes |= node
+		cls._taken_nodes[name] = node
 		return node
 
 	@classmethod
@@ -57,7 +64,6 @@ class NodesManager(DataManager):
 		node.parents = data.get(MemberTypes.PARENTS, tuple())
 		node.children = data.get(MemberTypes.CHILDREN, tuple())
 		node.descriptions = data.get(MemberTypes.DESCRIPTIONS, tuple())
-		cls._taken_nodes |= node
 		return node
 
 	@classmethod
@@ -72,8 +78,7 @@ class NodesManager(DataManager):
 		node = Node(name)
 		node.add_parents(*list(parents or []))
 		node.add_children(*list(children or []))
-		cls._data |= node.to_dict()
-		cls._taken_nodes |= node
+		cls._taken_nodes[name] = node
 
 	@classmethod
 	def is_in_data(cls, name: str) -> bool:
