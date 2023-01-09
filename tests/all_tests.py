@@ -1,12 +1,15 @@
 import unittest
 
 from abstractTest import AbstractTest
+from nodeConnectingTest import NodeConnectingTest
 from tests.categoriesTest import CategoriesTest
 
 
 tests = [
     CategoriesTest,
+    NodeConnectingTest,
 ]
+
 
 def main():
     failure, errors, total, skipped = 0, 0, 0, 0
@@ -24,6 +27,7 @@ def main():
     print('Total test statistics:')
     AbstractTest.print_statistics(failure, errors, skipped, total)
 # python -m unittest discover -s tests -p *Test.py
+
 
 if __name__ == '__main__':
     main()

@@ -22,8 +22,8 @@ class NodeConnectingTest(AbstractTest):
 
 		self.assertTrue(NodesManager.is_in_data(node_name), 'Node creation error')
 		node = NodesManager.get_node(node_name)
-		self.assertCountEqual(parents, node.parents.get_names(), 'Parent nodes creation error')
-		self.assertCountEqual(children, node.children.get_names(), 'Children nodes creation error')
+		self.assertCountEqual(parents, node.parents.get_all(), 'Parent nodes creation error')
+		self.assertCountEqual(children, node.children.get_all(), 'Children nodes creation error')
 
 	@parameterized.expand([
 		('not_interconnected_ancestors',
@@ -57,12 +57,12 @@ class NodeConnectingTest(AbstractTest):
 
 		node = NodesManager.get_node(node_name)
 		for parent, grandparents in zip(e_all_parents, e_all_grandparents):
-			parent_node = node.parents.get(parent)
+			parent_node = node.parents.get_node(parent)
 			self.assertIn(parent, node.parents, 'expected parent does not exist')
 			self.assertIn(node_name, parent_node.children, 'node not in parent\'s children')
 			for grandparent in grandparents:
-				grandparent_node = parent_node.parents.get(grandparent)
-				self.assertIn(grandparent, node.parents.get(parent).parents, 'expected grandparent does not exist')
+				grandparent_node = parent_node.parents.get_node(grandparent)
+				self.assertIn(grandparent, node.parents.get_node(parent).parents, 'expected grandparent does not exist')
 				self.assertIn(parent, grandparent_node.children, 'node not in parent\'s children (grandparent level)')
 
 		e_ancestors = set(e_all_parents) | set(*e_all_grandparents)
@@ -99,12 +99,12 @@ class NodeConnectingTest(AbstractTest):
 
 		node = NodesManager.get_node(node_name)
 		for child, grandchildren in zip(e_all_children, e_all_grandchildren):
-			child_node = node.children.get(child)
+			child_node = node.children.get_node(child)
 			self.assertIn(child, node.children, 'expected child does not exist')
 			self.assertIn(node_name, child_node.parents, 'node not in child\'s parents')
 			for grandchild in grandchildren:
-				grandchild_node = child_node.children.get(grandchild)
-				self.assertIn(grandchild, node.children.get(child).parents, 'expected grandparent does not exist')
+				grandchild_node = child_node.children.get_node(grandchild)
+				self.assertIn(grandchild, node.children.get_node(child).parents, 'expected grandparent does not exist')
 				self.assertIn(child, grandchild_node.parents, 'node not in child\'s parents (grandchild level)')
 
 		e_descendants = set(e_all_children) | set(*e_all_grandchildren)
@@ -114,7 +114,7 @@ class NodeConnectingTest(AbstractTest):
 		('normal_removal', [['p2']], ['c'], [['p1', 'p2']], ['p1']),
 		('common_parent', [['p1'], ['p3']], ['c1', 'c2'], [['p1', 'p2'], ['p2', 'p3']], ['p2']),
 	])
-	def test_remove_nodes(self, name: str, e_all_parents: list[str], children: list[str], all_parents: list[str], to_removes: list[str]):
+	def test_remove_parent_nodes(self, name: str, e_all_parents: list[str], children: list[str], all_parents: list[str], to_removes: list[str]):
 		for child, parents in zip(children, all_parents):
 			for parent in parents:
 				self.cli.parse(f'm {K.ADD_FULL} {parent}')
@@ -131,7 +131,7 @@ class NodeConnectingTest(AbstractTest):
 		('normal_removal', [['c2']], ['p'], [['c1', 'c2']], ['c1']),
 		('common_children', [['c1'], ['c3']], ['p1', 'p2'], [['c1', 'c2'], ['c2', 'c3']], ['c2']),
 	])
-	def test_remove_nodes(self, name: str, e_all_children: list[str], parents: list[str], all_children: list[str], to_removes: list[str]):
+	def test_remove_children_nodes(self, name: str, e_all_children: list[str], parents: list[str], all_children: list[str], to_removes: list[str]):
 		for parent, children in zip(parents, all_children):
 			self.cli.parse(f'm {K.ADD_FULL} {parent}')
 			for child in children:

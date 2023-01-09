@@ -7,8 +7,8 @@ class IdeasTest(AbstractTest):
         name = 'default'
 
         self.execute(name)
-        by_index = self.ideas_list.get(0)
-        by_name = self.ideas_list.get(name)
+        by_index = self.ideas_list.get_node(0)
+        by_name = self.ideas_list.get_node(name)
 
         self.assertEqual(name, by_index.get_content())
         self.assertEqual(name, by_name.get_content())
