@@ -1,11 +1,13 @@
 import unittest
 
 from abstractTest import AbstractTest
+from deepConnectingTest import DeepConnectingTest
 from nodeConnectingTest import NodeConnectingTest
 
 
 tests = [
     NodeConnectingTest,
+    DeepConnectingTest,
 ]
 
 

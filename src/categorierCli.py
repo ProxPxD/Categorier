@@ -8,6 +8,11 @@ class Keywords:
 	ADD_FULL = 'add'
 	DELETE_FULL = 'delete'
 	DELETE_SHORT = 'del'
+	FLAT_SHORT = '-f'
+	FLAT_LONG = '--flat'
+
+# Redesign
+# add (descr)* <NAME> (--flat/-f) (CAT...) (to <NAME>)* (-d DESCR)
 
 # Examples:
 	# "add idea idea_name" == "add idea_name to idea" == "add to idea idea_name
