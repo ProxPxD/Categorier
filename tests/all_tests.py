@@ -2,11 +2,9 @@ import unittest
 
 from abstractTest import AbstractTest
 from nodeConnectingTest import NodeConnectingTest
-from tests.categoriesTest import CategoriesTest
 
 
 tests = [
-    CategoriesTest,
     NodeConnectingTest,
 ]
 

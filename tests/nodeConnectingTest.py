@@ -66,7 +66,7 @@ class NodeConnectingTest(AbstractTest):
 				self.assertIn(parent, grandparent_node.children, 'node not in parent\'s children (grandparent level)')
 
 		e_ancestors = set(e_all_parents) | set(*e_all_grandparents)
-		self.assertCountEqual(e_ancestors, list(node.get_all_ancestors_names()))
+		self.assertCountEqual(e_ancestors, list(node.get_all_ancestors_names()), 'Amount of ancestors does not match')
 
 	@parameterized.expand([
 		('not_interconnected_descendants',
@@ -108,7 +108,7 @@ class NodeConnectingTest(AbstractTest):
 				self.assertIn(child, grandchild_node.parents, 'node not in child\'s parents (grandchild level)')
 
 		e_descendants = set(e_all_children) | set(*e_all_grandchildren)
-		self.assertCountEqual(e_descendants, list(node.get_all_ancestors_names()))
+		self.assertCountEqual(e_descendants, list(node.get_all_ancestors_names()), 'Amount of descendants does not match')
 
 	@parameterized.expand([
 		('normal_removal', [['p2']], ['c'], [['p1', 'p2']], ['p1']),
@@ -138,7 +138,7 @@ class NodeConnectingTest(AbstractTest):
 				self.cli.parse(f'm {K.ADD_FULL} {child} {" ".join(parents)}')
 
 		for to_remove in to_removes:
-			self.cli.parse(f'm {K.DELETE_FULL} {to_remove}')  # TODO: correct test after addint the confirmation of the removal
+			self.cli.parse(f'm {K.DELETE_SHORT} {to_remove}')  # TODO: correct test after addint the confirmation of the removal
 
 		for parent, e_children in zip(parents, e_all_children):
 			node = NodesManager.get_node(parent)
