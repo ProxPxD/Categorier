@@ -10,6 +10,10 @@ class Keywords:
 	DELETE_SHORT = 'del'
 	FLAT_SHORT = '-f'
 	FLAT_LONG = '--flat'
+	MANY = 'many'
+	AND = 'and'
+	TO = 'to'
+
 
 # Redesign
 # add (descr)* <NAME> (--flat/-f) (CAT...) (to <NAME>)* (-d DESCR)

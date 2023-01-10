@@ -56,6 +56,10 @@ class NodesManager(DataManager):
 			return cls._get_node_from_data(name)
 
 	@classmethod
+	def get_nodes(cls, *names: str) -> Iterable[Node]:
+		return map(cls.get_node, names)
+
+	@classmethod
 	def _get_node_from_data(cls, name: str) -> Node:
 		node_data = cls._data[name]
 		node = cls.create_node_from_data(name, node_data)
@@ -107,6 +111,9 @@ class IName:
 	def __init__(self, name: str, **kwargs):
 		super().__init__(**kwargs)
 		self.name = name
+
+	def get_name(self) -> str:
+		return self.name
 
 
 class Field(IName, IToDict):
@@ -166,6 +173,9 @@ class NodesStorageField(CollectiveField, ABC):
 				further = node.get_further(self.name).get_all()
 				to_extend.extend(further)
 				yield name
+
+	def get_names(self) -> Iterable[str]:
+		return self._values
 
 	def has_in_flattened_members(self, to_check: str):
 		return to_check not in self.get_all_member_names_flattened()
