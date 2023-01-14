@@ -8,11 +8,17 @@ class Keywords:
 	ADD_FULL = 'add'
 	DELETE_FULL = 'delete'
 	DELETE_SHORT = 'del'
+
 	FLAT_SHORT = '-f'
 	FLAT_LONG = '--flat'
 	MANY = 'many'
 	AND = 'and'
+
 	TO = 'to'
+
+	DESCRIPTION_FULL = 'description'
+	DESCRIPTION_SHORT = 'descr'
+	DESCRIPTION_FLAG = '-d'
 
 
 # Redesign

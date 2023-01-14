@@ -49,7 +49,7 @@ class NodeConnectingTest(AbstractTest):
 	])
 	def test_add_ancestors_to_node(self, node_name: str, e_all_parents: list[str], e_all_grandparents: list[list[str]], all_parents: list[str], all_grandparents: list[list[str]]):
 		for parent, grandparents in zip(all_parents, all_grandparents):
-			for grandparent in grandparents:
+			for grandparent in filter(NodesManager.is_not_in_data, grandparents):
 				self.cli.parse(f'm {K.ADD_FULL} {grandparent}')
 			self.cli.parse(f'm {K.ADD_FULL} {parent} {" ".join(grandparents)}')
 
@@ -94,7 +94,7 @@ class NodeConnectingTest(AbstractTest):
 		self.cli.parse(f'm {K.ADD_FULL} {node_name}')
 		for child, grandchildren in zip(all_children, all_grandchildren):
 			self.cli.parse(f'm {K.ADD_FULL} {child} {node_name}')
-			for grandchild in grandchildren:
+			for grandchild in filter(NodesManager.is_not_in_data, grandchildren):
 				self.cli.parse(f'm {K.ADD_FULL} {grandchild} {child}')
 
 		node = NodesManager.get_node(node_name)

@@ -93,6 +93,10 @@ class NodesManager(DataManager):
 		return name in cls._data
 
 	@classmethod
+	def is_not_in_data(cls, name: str) -> bool:
+		return name not in cls._data
+
+	@classmethod
 	def get_data(cls) -> dict:
 		return cls._data
 
@@ -216,7 +220,7 @@ class ChildNodesStorageField(NodesStorageField):
 		super().__init__(*parents, name=MemberTypes.CHILDREN, **kwargs)
 
 
-class DescriptionField(Field):
+class DescriptionField(CollectiveField):
 	def __init__(self, **kwargs):
 		super().__init__(name=MemberTypes.DESCRIPTIONS, **kwargs)
 
@@ -292,11 +296,11 @@ class NodesStorageFieldPossessor(IName):
 		further.remove(*to_removes)
 
 
-class Node(IName, NodesStorageFieldPossessor):
+class Node(NodesStorageFieldPossessor, IName):
 
 	def __init__(self, name: str, **kwargs):
 		super().__init__(name=name, **kwargs)
-		self.description = DescriptionField()
+		self.descriptions = DescriptionField()
 
 	def __setattr__(self, name, value):
 		match name:
@@ -311,7 +315,7 @@ class Node(IName, NodesStorageFieldPossessor):
 				self.__dict__[name] = value
 
 	def to_dict(self) -> dict:
-		fields = (self.parents, self.children, self.description)
+		fields = (self.parents, self.children, self.descriptions)
 		as_dicts = map(CollectiveField.to_dict, fields)
 		joined_dict = reduce(op.or_, as_dicts)
 		return joined_dict

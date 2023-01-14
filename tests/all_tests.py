@@ -2,12 +2,18 @@ import unittest
 
 from abstractTest import AbstractTest
 from deepConnectingTest import DeepConnectingTest
+from descriptionTest import DescriptionTest
+from flatOptionTest import FlatOptionTest
+from multipleNodesTest import MultipleNodesTest
 from nodeConnectingTest import NodeConnectingTest
 
 
 tests = [
     NodeConnectingTest,
     DeepConnectingTest,
+    MultipleNodesTest,
+    DescriptionTest,
+    FlatOptionTest,
 ]
 
 

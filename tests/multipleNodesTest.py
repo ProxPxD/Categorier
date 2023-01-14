@@ -4,7 +4,6 @@ from categorierCli import Keywords as K
 from nodes import NodesManager, Node
 
 
-# TODO: think of test for adding many nodes with with flat option
 class MultipleNodesTest(AbstractTest):
 	@classmethod
 	def _get_test_name(cls) -> str:
