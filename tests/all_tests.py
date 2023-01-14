@@ -5,13 +5,14 @@ from descriptionTest import DescriptionTest
 from flatConnectingTest import FlatConnectingTest
 from multipleNodesTest import MultipleNodesTest
 from nodeConnectingTest import NodeConnectingTest
-
+from removeOneTest import RemoveOneTest
 
 tests = [
     NodeConnectingTest,
     MultipleNodesTest,
     DescriptionTest,
     FlatConnectingTest,
+    RemoveOneTest,
 ]
 
 

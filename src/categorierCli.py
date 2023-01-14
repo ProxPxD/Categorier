@@ -17,6 +17,7 @@ class Keywords:
 	AND = 'and'
 
 	TO = 'to'
+	FROM = 'from'
 
 	DESCRIPTION_FULL = 'description'
 	DESCRIPTION_SHORT = 'descr'
