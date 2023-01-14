@@ -8,7 +8,7 @@ from nodes import NodesManager
 class AllFlatConnectingTest(AbstractTest):
 	@classmethod
 	def _get_test_name(cls) -> str:
-		return 'Deep Connecting'
+		return 'All Flat Connecting'
 
 	@parameterized.expand([
 		('not_interconnected_ancestors',
