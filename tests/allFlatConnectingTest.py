@@ -5,7 +5,7 @@ from categorierCli import Keywords as K
 from nodes import NodesManager
 
 
-class DeepConnectingTest(AbstractTest):
+class AllFlatConnectingTest(AbstractTest):
 	@classmethod
 	def _get_test_name(cls) -> str:
 		return 'Deep Connecting'
@@ -34,7 +34,7 @@ class DeepConnectingTest(AbstractTest):
 				self.cli.parse(f'm {K.ADD_FULL} {grandparent}')
 			self.cli.parse(f'm {K.ADD_FULL} {parent} {" ".join(grandparents)}')
 
-		self.cli.parse(f'm {K.ADD_FULL} {node_name} {K.FLAT_LONG} {" ".join(all_parents)}')
+		self.cli.parse(f'm {K.ADD_FULL} {node_name} {K.ALL_FLAT_LONG} {" ".join(all_parents)}')
 
 		node = NodesManager.get_node(node_name)
 		for parent in e_all_parents:

@@ -5,7 +5,7 @@ from categorierCli import Keywords as K
 from nodes import NodesManager
 
 
-class FlatOptionTest(AbstractTest):
+class FlatConnectingTest(AbstractTest):
 	@classmethod
 	def _get_test_name(cls) -> str:
 		return 'Flat Option'
