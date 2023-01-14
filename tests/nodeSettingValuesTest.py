@@ -58,9 +58,8 @@ class NodeSettingValuesTest(AbstractTest):
 		for e_key in e_keys:
 			self.cli.parse(f'm {K.SET} {e_key} [] {K.IN} {node_name}')
 
-		input_string = f'm'
-		for e_key, e_key_values in zip(e_keys, e_values):
-			input_string += f' {K.SET} {e_key} ' + ' '.join(e_key_values)
+		input_string = f'm {K.SET}'
+		input_string += f' {K.AND} '.join((f'{e_key}' + ' '.join(e_key_values) for e_key, e_key_values in zip(e_keys, e_values)))
 		input_string += f' {K.IN} {node_name}'
 		self.cli.parse(input_string)
 
