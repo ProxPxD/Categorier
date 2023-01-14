@@ -8,6 +8,7 @@ class Keywords:
 	ADD_FULL = 'add'
 	DELETE_FULL = 'delete'
 	DELETE_SHORT = 'del'
+	SET = 'set'
 
 	FLAT_SHORT = '-f'
 	FLAT_LONG = '--flat'
@@ -15,6 +16,7 @@ class Keywords:
 	ALL_FLAT_LONG = '--all-flat'
 	MANY = 'many'
 	AND = 'and'
+	JUST = 'just'
 
 	TO = 'to'
 	FROM = 'from'

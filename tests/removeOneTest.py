@@ -35,7 +35,7 @@ class RemoveOneTest(AbstractTest):
 
 		self.cli.parse(f'm {K.ADD_FULL} {node_name} {" ".join(all_parents)}')
 
-		self.cli.parse(f'm {K.DELETE_FULL} {" ".join(parents_to_remove)} {K.FROM} {node_name}')
+		self.cli.parse(f'm {K.DELETE_FULL} {K.JUST} {" ".join(parents_to_remove)} {K.FROM} {node_name}')
 
 		node = NodesManager.get_node(node_name)
 		self.assertCountEqual(e_parents, node.parents)
