@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-import operator as op
 from abc import ABC
 from dataclasses import dataclass
-from functools import reduce
 from pathlib import Path
 from typing import Iterable
 
@@ -46,14 +44,10 @@ class DataManager:
 
 
 class NodesManager(DataManager):
-	_taken_nodes = dict()
 
 	@classmethod
 	def get_node(cls, name: str) -> Node:
-		try:
-			return cls._taken_nodes[name]
-		except KeyError:
-			return cls._get_node_from_data(name)
+		return cls._get_node_from_data(name)
 
 	@classmethod
 	def get_nodes(cls, *names: str) -> Iterable[Node]:
@@ -63,7 +57,6 @@ class NodesManager(DataManager):
 	def _get_node_from_data(cls, name: str) -> Node:
 		node_data = cls._data[name]
 		node = cls.create_node_from_data(name, node_data)
-		cls._taken_nodes[name] = node
 		return node
 
 	@classmethod
@@ -86,7 +79,6 @@ class NodesManager(DataManager):
 		node = Node(name)
 		node.add_parents(*list(parents or []))
 		node.add_children(*list(children or []))
-		cls._taken_nodes[name] = node
 
 	@classmethod
 	def is_in_data(cls, name: str) -> bool:
@@ -220,11 +212,6 @@ class ChildNodesStorageField(NodesStorageField):
 		super().__init__(*parents, name=MemberTypes.CHILDREN, **kwargs)
 
 
-class DescriptionField(CollectiveField):
-	def __init__(self, **kwargs):
-		super().__init__(name=MemberTypes.DESCRIPTIONS, **kwargs)
-
-
 class NodesStorageFieldPossessor(IName):
 
 	def __init__(self, name, **kwargs):
@@ -296,11 +283,17 @@ class NodesStorageFieldPossessor(IName):
 		further.remove(*to_removes)
 
 
-class Node(NodesStorageFieldPossessor, IName):
+class Node(NodesStorageFieldPossessor, IName, dict):
 
 	def __init__(self, name: str, **kwargs):
 		super().__init__(name=name, **kwargs)
-		self.descriptions = DescriptionField()
+
+	@property
+	def descriptions(self):
+		return self[MemberTypes.DESCRIPTIONS]
+
+	def get(self, key: str) -> str | list:
+		return self[key]
 
 	def __setattr__(self, name, value):
 		match name:
@@ -315,10 +308,21 @@ class Node(NodesStorageFieldPossessor, IName):
 				self.__dict__[name] = value
 
 	def to_dict(self) -> dict:
-		fields = (self.parents, self.children, self.descriptions)
-		as_dicts = map(CollectiveField.to_dict, fields)
-		joined_dict = reduce(op.or_, as_dicts)
-		return joined_dict
+		return {
+			**self.parents.to_dict(),
+			**self.children.to_dict(),
+			**self
+		}
 
 	def __hash__(self):
 		return hash(self.name)
+
+	def __getitem__(self, key):
+		if key == MemberTypes.DESCRIPTIONS:
+			self.setdefault(key, [])
+		return super().__getitem__(key)
+
+	def __setitem__(self, key, value):
+		if value == '[]':
+			value = []
+		super().__setitem__(key, value)

@@ -5,7 +5,7 @@ from descriptionTest import DescriptionTest
 from flatConnectingTest import FlatConnectingTest
 from multipleNodesTest import MultipleNodesTest
 from nodeConnectingTest import NodeConnectingTest
-from nodeDictionaryTest import NodeDictionaryTest
+from nodeSettingValuesTest import NodeSettingValuesTest
 from removeOneTest import RemoveOneTest
 
 tests = [
@@ -14,7 +14,7 @@ tests = [
     DescriptionTest,
     FlatConnectingTest,
     RemoveOneTest,
-    NodeDictionaryTest,
+    NodeSettingValuesTest,
 ]
 
 

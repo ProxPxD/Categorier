@@ -17,9 +17,12 @@ class Keywords:
 	MANY = 'many'
 	AND = 'and'
 	JUST = 'just'
+	VALUE = 'value'
+	VALUES = 'values'
 
 	TO = 'to'
 	FROM = 'from'
+	IN = 'in'
 
 	DESCRIPTION_FULL = 'description'
 	DESCRIPTION_SHORT = 'descr'
