@@ -11,8 +11,8 @@ class Keywords:
 
 	FLAT_SHORT = '-f'
 	FLAT_LONG = '--flat'
-	ALL_FLAT_LONG = '--all-flat'
 	ALL_FLAT_SHORT = '-af'
+	ALL_FLAT_LONG = '--all-flat'
 	MANY = 'many'
 	AND = 'and'
 

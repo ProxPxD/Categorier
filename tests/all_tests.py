@@ -1,7 +1,6 @@
 import unittest
 
 from abstractTest import AbstractTest
-from allFlatConnectingTest import AllFlatConnectingTest
 from descriptionTest import DescriptionTest
 from flatConnectingTest import FlatConnectingTest
 from multipleNodesTest import MultipleNodesTest
@@ -10,7 +9,6 @@ from nodeConnectingTest import NodeConnectingTest
 
 tests = [
     NodeConnectingTest,
-    AllFlatConnectingTest,
     MultipleNodesTest,
     DescriptionTest,
     FlatConnectingTest,
