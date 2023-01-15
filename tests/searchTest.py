@@ -17,8 +17,8 @@ class SearchTest(AbstractTest):
 		('by_value_in_search_string', ['Poland', 'Portugal', 'Czechia'], 'Europe', f'{K.BY} continent'),
 		('by_value_in_by', ['Poland', 'Portugal', 'Czechia'], '', f'{K.BY} continent Europe'),
 		('by_value_not_set', ['Chile'], '', f'{K.BY} continent None'),
-		('by_name', ['Czechia', 'Colombia', 'Chile'], 'C', f'{K.BY} name'),
-		('by_name', ['Czechia', 'Colombia', 'Chile'], 'C', ''),
+		('by_name_explicit', ['Czechia', 'Colombia', 'Chile'], 'C', f'{K.BY} name'),
+		('by_name_implicit', ['Czechia', 'Colombia', 'Chile'], 'C', ''),
 	])
 	def test_search(self, name: str, e_results: list[str], to_search: str, search_by: str):
 		countries = 'Poland', 'Portugal', 'Czechia', 'Peru', 'Colombia', 'Chile'
