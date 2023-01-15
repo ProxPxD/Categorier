@@ -21,7 +21,7 @@ class DescriptionTest(AbstractTest):
 	def test_add_description(self, name: str, e_descriptions_per_node: list[list[str]], descriptions: list[str], nodes: list[str]):
 		self.cli.parse(f'm {K.ADD} {K.MANY} {" ".join(nodes)}')
 
-		input_line = f'm {K.ADD} {K.DESCRIPTION_SHORT} {" ".join(descriptions)} {K.TO} {" ".join(nodes)}'
+		input_line = f'm {K.ADD} {K.DESCR} {" ".join(descriptions)} {K.TO} {" ".join(nodes)}'
 		self.cli.parse(input_line)
 
 		for node, e_descriptions in zip(nodes, e_descriptions_per_node):

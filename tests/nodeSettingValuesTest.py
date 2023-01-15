@@ -90,3 +90,16 @@ class NodeSettingValuesTest(AbstractTest):
 		self.assertCountEqual(e_keys, node.keys())
 		for e_key, e_val in zip(e_keys, e_vals):
 			self.assertEqual(e_val, node.get(e_key))
+
+	def test_add_node_with_setting_and_grandparents(self):
+		node_name = 'n'
+		grand_parent = 'g'
+		e_key = 'Author'
+		e_value = 'Orwell'
+		self.cli.parse(f'm {K.ADD} {grand_parent}')
+		self.cli.parse(f'm {K.ADD} {node_name} {grand_parent} {K.SET} {e_key} {e_value}')
+
+		node = NodesManager.get_node(node_name)
+		self.assertIn(grand_parent, node.parents.get_names())
+		self.assertIn(e_key, node.keys())
+		self.assertEqual(e_key, node.get(e_key))

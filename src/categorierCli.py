@@ -27,8 +27,8 @@ class Keywords:
 	FROM = 'from'
 	IN = 'in'
 
-	DESCRIPTION_FULL = 'description'
-	DESCRIPTION_SHORT = 'descr'
+	DESCRIPTION = 'description'
+	DESCR = 'descr'
 	DESCRIPTION_FLAG = '-d'
 
 
