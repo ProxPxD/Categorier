@@ -18,7 +18,17 @@ class NodeConnectingTest(AbstractTest):
 		('with_children_and_parents', ['parent1', 'parent2'], ['child1', 'child2']),
 	])
 	def test_add_node(self, node_name: str, parents: list[str], children: list[str]):
-		self.cli.parse(f'm {K.ADD} {node_name}')
+		for parent in parents:
+			self.cli.parse(f'm {K.ADD} {parent}')
+		for child in children:
+			self.cli.parse(f'm {K.ADD} {child}')
+
+		input_string = f'm {K.ADD} {node_name}'
+		if parents:
+			input_string += f' {K.WITH_PARENTS} {" ".join(parents)}'
+		if children:
+			input_string += f' {K.WITH_CHILDREN} {" ".join(children)}'
+		self.cli.parse(input_string)
 
 		self.assertTrue(NodesManager.is_in_data(node_name), 'Node creation error')
 		node = NodesManager.get_node(node_name)

@@ -33,7 +33,10 @@ class DataManager:
 	@classmethod
 	def save_data(cls):
 		with open(cls._loaded_path, 'w') as data_file:
-			yaml.safe_dump(data_file, data_file, default_flow_style=False)
+			yaml.safe_dump(cls._data, data_file,
+						   default_flow_style=False,
+						   sort_keys=False,
+						   allow_unicode=True)
 
 	@classmethod
 	def load_data(cls, path: str | Path = None):
@@ -78,16 +81,23 @@ class NodesManager(DataManager):
 
 	@classmethod
 	def add_node(cls, name: str, *, parents: Iterable[str] = None, children: Iterable[str] = None) -> Node:
-		cls.create_node(name, parents=parents, children=children)
+		node = cls.create_node(name, parents=parents, children=children)
+		cls.save_node(node)
 		return cls.get_node(name)
 
 	@classmethod
-	def create_node(cls, name: str, *, parents: Iterable[str] = None, children: Iterable[str] = None) -> None:
+	def create_node(cls, name: str, *, parents: Iterable[str] = None, children: Iterable[str] = None) -> Node:
 		if cls.is_in_data(name):
 			raise ValueError
 		node = Node(name)
 		node.add_parents(*list(parents or []))
 		node.add_children(*list(children or []))
+		return node
+
+	@classmethod
+	def save_node(cls, node: Node):
+		cls._data |= node.to_dict()
+		cls.save_data()
 
 	@classmethod
 	def is_in_data(cls, name: str) -> bool:
@@ -141,7 +151,7 @@ class CollectiveField(Field):
 		return self._values[n]
 
 	def add(self, *to_adds) -> None:
-		self._values.extend(*to_adds)
+		self._values.extend(to_adds)
 
 	def remove(self, *to_removes):
 		for to_remove in to_removes:
@@ -149,6 +159,9 @@ class CollectiveField(Field):
 
 	def get_all(self) -> list:
 		return self._values
+
+	def clear(self):
+		self.remove(*self.get_all())
 
 	def __getitem__(self, index: int) -> Node:
 		return self.get_nth(index)
@@ -183,7 +196,7 @@ class NodesStorageField(CollectiveField, ABC):
 		return self._values
 
 	def has_in_flattened_members(self, to_check: str):
-		return to_check not in self.get_all_member_names_flattened()
+		return to_check in self.get_all_member_names_flattened()
 
 	def get_final_members(self) -> Iterable[str]:
 		to_extend = self._values[:]
@@ -262,6 +275,8 @@ class NodesStorageFieldPossessor(IName):
 			self._add_member(child, MemberTypes.CHILDREN)
 
 	def _add_member(self, to_put, further_type: str) -> None:
+		if not to_put:
+			return
 		further = self.get_further(further_type)
 		if further.has_in_flattened_members(to_put):
 			return None
@@ -315,17 +330,25 @@ class Node(NodesStorageFieldPossessor, IName, dict):
 					value = [value]
 				if isinstance(value, list | tuple):
 					collection: CollectiveField = self.__dict__[name]
-					collection.add(*value)
+					if value:
+						collection.add(*value)
+					else:
+						collection.clear()
+					return
+				if isinstance(value, NodesStorageField):
+					self.__dict__[name] = value
+					return
+
 				raise ValueError
 			case _:
 				self.__dict__[name] = value
 
 	def to_dict(self) -> dict:
-		return {
+		return {self.name: {
 			**self.parents.to_dict(),
 			**self.children.to_dict(),
 			**self
-		}
+		}}
 
 	def __hash__(self):
 		return hash(self.name)
