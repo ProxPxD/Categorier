@@ -103,3 +103,15 @@ class NodeSettingValuesTest(AbstractTest):
 		self.assertIn(grand_parent, node.parents.get_names())
 		self.assertIn(e_key, node.keys())
 		self.assertEqual(e_key, node.get(e_key))
+
+	def test_unset_value(self):
+		node_name = 'n'
+		e_key = 'Author'
+		e_value = 'Orwell'
+		node = NodesManager.add_node(node_name)
+		node[e_key] = e_value
+
+		self.cli.parse(f'm {K.UNSET} {e_key} {K.FROM} {node_name}')
+
+		node = NodesManager.get_node(node_name)
+		self.assertNotIn(e_key, node.keys())

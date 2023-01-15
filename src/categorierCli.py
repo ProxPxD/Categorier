@@ -9,6 +9,7 @@ class Keywords:
 	DELETE = 'delete'
 	DEL = 'del'
 	SET = 'set'
+	UNSET = 'unset'
 
 	FLAT_SHORT = '-f'
 	FLAT_LONG = '--flat'
