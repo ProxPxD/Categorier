@@ -68,6 +68,14 @@ class NodesManager(DataManager):
 		return node
 
 	@classmethod
+	def add_nodes(cls, *names: str, all_parents: Iterable[Iterable[str]], all_children: Iterable[Iterable[str]]):
+		nodes = []
+		for name, parents, children in zip(names, all_parents, all_children):
+			node = cls.add_node(name, parents=parents, children=children)
+			nodes.append(node)
+		return nodes
+
+	@classmethod
 	def add_node(cls, name: str, *, parents: Iterable[str] = None, children: Iterable[str] = None) -> Node:
 		cls.create_node(name, parents=parents, children=children)
 		return cls.get_node(name)
