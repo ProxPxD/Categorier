@@ -115,3 +115,24 @@ class NodeSettingValuesTest(AbstractTest):
 
 		node = NodesManager.get_node(node_name)
 		self.assertNotIn(e_key, node.keys())
+
+	@parameterized.expand([
+		('unset', ['Muhhamad', 'Hatimi'], ['ibn'], K.UNSET),
+		('delete_value', ['Muhhamad', 'Hatimi'], ['ibn'], f'{K.DEL} {K.VALUE}'),
+		('two_values', ['Muhhamad'], ['ibn', 'Hatimi'], f'{K.DELETE} {K.VALUES}'),
+		('unset_by_number', ['Muhhamad', 'Hatimi'], [2], K.UNSET),
+		('delete_value_by_number', ['Muhhamad', 'Hatimi'], [2], f'{K.DEL} {K.VALUE}'),
+		('two_values_by_number', ['Muhhamad'], [2, 3], f'{K.DELETE} {K.VALUES}'),
+	])
+	def test_unset_concrete_value(self, name: str, e_values: list[str], to_unsets: list[str], unset_way: str):
+		node_name = 'n'
+		e_key = 'names'
+		values = ['Muhhamad', 'ibn', 'Hatimi']
+		node = NodesManager.add_node(node_name)
+		node[e_key] = values
+
+		self.cli.parse(f'm {unset_way} {e_key} {" ".join(to_unsets)} {K.FROM} {node_name}')
+
+		node = NodesManager.get_node(node_name)
+		self.assertIn(e_key, node.keys())
+		self.assertIn(e_values, node[e_key])
