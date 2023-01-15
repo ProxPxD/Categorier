@@ -8,6 +8,7 @@ from multipleNodesTest import MultipleNodesTest
 from nodeConnectingTest import NodeConnectingTest
 from nodeSettingValuesTest import NodeSettingValuesTest
 from removeOneTest import RemoveOneTest
+from searchTest import SearchTest
 
 tests = [
     NodeConnectingTest,
@@ -17,6 +18,7 @@ tests = [
     RemoveOneTest,
     NodeSettingValuesTest,
     ChangeTest,
+    SearchTest,
 ]
 
 

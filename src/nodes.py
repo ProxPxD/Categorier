@@ -301,12 +301,16 @@ class Node(NodesStorageFieldPossessor, IName, dict):
 	def descriptions(self):
 		return self[MemberTypes.DESCRIPTIONS]
 
+	@descriptions.setter
+	def descriptions(self, to_set):
+		self[MemberTypes.DESCRIPTIONS] = to_set
+
 	def get(self, key: str) -> str | list:
 		return self[key]
 
 	def __setattr__(self, name, value):
 		match name:
-			case MemberTypes.PARENTS | MemberTypes.CHILDREN | MemberTypes.DESCRIPTIONS:
+			case MemberTypes.PARENTS | MemberTypes.CHILDREN:
 				if isinstance(value, str):
 					value = [value]
 				if isinstance(value, list | tuple):

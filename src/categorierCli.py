@@ -12,6 +12,7 @@ class Keywords:
 	UNSET = 'unset'
 	CHANGE = 'change'
 	RENAME = 'rename'
+	SEARCH = 'search'
 
 	FLAT_SHORT = '-f'
 	FLAT_LONG = '--flat'
@@ -31,6 +32,7 @@ class Keywords:
 	FROM = 'from'
 	IN = 'in'
 	OF = 'of'
+	BY = 'by'
 
 	DESCRIPTION = 'description'
 	DESCR = 'descr'
