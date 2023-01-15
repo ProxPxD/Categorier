@@ -18,10 +18,10 @@ class FlatConnectingTest(AbstractTest):
 	def test_add_with_flat_option(self, node_name: str, e_ancestors: list[str], all_parents: list[str], all_grandparents: list[list[str]]):
 		for parent, grandparents in zip(all_parents, all_grandparents):
 			for grandparent in filter(NodesManager.is_not_in_data, grandparents):
-				self.cli.parse(f'm {K.ADD_FULL} {grandparent}')
-			self.cli.parse(f'm {K.ADD_FULL} {parent} {" ".join(grandparents)}')
+				self.cli.parse(f'm {K.ADD} {grandparent}')
+			self.cli.parse(f'm {K.ADD} {parent} {" ".join(grandparents)}')
 
-		self.cli.parse(f'm {K.ADD_FULL} {node_name} {" ".join(all_parents)} {K.FLAT_LONG}')
+		self.cli.parse(f'm {K.ADD} {node_name} {" ".join(all_parents)} {K.FLAT_LONG}')
 
 		node = NodesManager.get_node(node_name)
 		self.assertCountEqual(e_ancestors, node.parents.get_names())
@@ -47,10 +47,10 @@ class FlatConnectingTest(AbstractTest):
 	def test_add_with_all_flat_option(self, node_name: str, e_all_parents: list[str], all_parents: list[str], all_grandparents: list[list[str]]):
 		for parent, grandparents in zip(all_parents, all_grandparents):
 			for grandparent in grandparents:
-				self.cli.parse(f'm {K.ADD_FULL} {grandparent}')
-			self.cli.parse(f'm {K.ADD_FULL} {parent} {" ".join(grandparents)}')
+				self.cli.parse(f'm {K.ADD} {grandparent}')
+			self.cli.parse(f'm {K.ADD} {parent} {" ".join(grandparents)}')
 
-		self.cli.parse(f'm {K.ADD_FULL} {node_name} {K.ALL_FLAT_LONG} {" ".join(all_parents)}')
+		self.cli.parse(f'm {K.ADD} {node_name} {K.ALL_FLAT_LONG} {" ".join(all_parents)}')
 
 		node = NodesManager.get_node(node_name)
 		for parent in e_all_parents:

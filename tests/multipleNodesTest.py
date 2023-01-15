@@ -11,7 +11,7 @@ class MultipleNodesTest(AbstractTest):
 
 	def test_add_many_nodes(self):
 		nodes = 'n1 n2 n3'.split(' ')
-		self.cli.parse(f'm {K.ADD_FULL} {K.MANY} {" ".join(nodes)}')
+		self.cli.parse(f'm {K.ADD} {K.MANY} {" ".join(nodes)}')
 
 		try:
 			actual_nodes = list(map(Node.get_name, NodesManager.get_nodes(*nodes)))
@@ -24,8 +24,8 @@ class MultipleNodesTest(AbstractTest):
 		nodes = 'n1 n2 n3'.split(' ')
 		ancestors = 'a1 a2 a3 a4'.split(' ')
 
-		self.cli.parse(f'm {K.ADD_FULL} {K.MANY} {" ".join(ancestors)}')
-		self.cli.parse(f'm {K.ADD_FULL} {K.MANY} {" ".join(nodes)} {K.TO} {" ".join(ancestors)}')
+		self.cli.parse(f'm {K.ADD} {K.MANY} {" ".join(ancestors)}')
+		self.cli.parse(f'm {K.ADD} {K.MANY} {" ".join(nodes)} {K.TO} {" ".join(ancestors)}')
 
 		try:
 			actual_nodes = list(NodesManager.get_nodes(*nodes))
@@ -43,8 +43,8 @@ class MultipleNodesTest(AbstractTest):
 		ancestors_and_string = f' {K.AND} '.join(ancestor_strings)
 
 		flat_ancestors = set(ancestor for ancestors in all_ancestors for ancestor in ancestors)
-		self.cli.parse(f'm {K.ADD_FULL} {K.MANY} {" ".join(flat_ancestors)}')
-		self.cli.parse(f'm {K.ADD_FULL} {K.MANY} {" ".join(nodes)} {K.TO} {ancestors_and_string}')
+		self.cli.parse(f'm {K.ADD} {K.MANY} {" ".join(flat_ancestors)}')
+		self.cli.parse(f'm {K.ADD} {K.MANY} {" ".join(nodes)} {K.TO} {ancestors_and_string}')
 
 		for e_node, ancestors in zip(nodes, all_ancestors):
 			try:

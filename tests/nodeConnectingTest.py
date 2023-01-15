@@ -18,7 +18,7 @@ class NodeConnectingTest(AbstractTest):
 		('with_children_and_parents', ['parent1', 'parent2'], ['child1', 'child2']),
 	])
 	def test_add_node(self, node_name: str, parents: list[str], children: list[str]):
-		self.cli.parse(f'm {K.ADD_FULL} {node_name}')
+		self.cli.parse(f'm {K.ADD} {node_name}')
 
 		self.assertTrue(NodesManager.is_in_data(node_name), 'Node creation error')
 		node = NodesManager.get_node(node_name)
@@ -50,10 +50,10 @@ class NodeConnectingTest(AbstractTest):
 	def test_add_ancestors_to_node(self, node_name: str, e_all_parents: list[str], e_all_grandparents: list[list[str]], all_parents: list[str], all_grandparents: list[list[str]]):
 		for parent, grandparents in zip(all_parents, all_grandparents):
 			for grandparent in filter(NodesManager.is_not_in_data, grandparents):
-				self.cli.parse(f'm {K.ADD_FULL} {grandparent}')
-			self.cli.parse(f'm {K.ADD_FULL} {parent} {" ".join(grandparents)}')
+				self.cli.parse(f'm {K.ADD} {grandparent}')
+			self.cli.parse(f'm {K.ADD} {parent} {" ".join(grandparents)}')
 
-		self.cli.parse(f'm {K.ADD_FULL} {node_name} {" ".join(all_parents)}')
+		self.cli.parse(f'm {K.ADD} {node_name} {" ".join(all_parents)}')
 
 		node = NodesManager.get_node(node_name)
 		for parent, grandparents in zip(e_all_parents, e_all_grandparents):
@@ -91,11 +91,11 @@ class NodeConnectingTest(AbstractTest):
 								[['g', 'g'], ['g', 'g'], ['g', 'g']]),
 	])
 	def test_add_descendatns_to_node(self, node_name: str, e_all_children: list[str], e_all_grandchildren: list[list[str]], all_children: list[str], all_grandchildren: list[list[str]]):
-		self.cli.parse(f'm {K.ADD_FULL} {node_name}')
+		self.cli.parse(f'm {K.ADD} {node_name}')
 		for child, grandchildren in zip(all_children, all_grandchildren):
-			self.cli.parse(f'm {K.ADD_FULL} {child} {node_name}')
+			self.cli.parse(f'm {K.ADD} {child} {node_name}')
 			for grandchild in filter(NodesManager.is_not_in_data, grandchildren):
-				self.cli.parse(f'm {K.ADD_FULL} {grandchild} {child}')
+				self.cli.parse(f'm {K.ADD} {grandchild} {child}')
 
 		node = NodesManager.get_node(node_name)
 		for child, grandchildren in zip(e_all_children, e_all_grandchildren):
@@ -117,11 +117,11 @@ class NodeConnectingTest(AbstractTest):
 	def test_remove_parent_nodes(self, name: str, e_all_parents: list[str], children: list[str], all_parents: list[str], to_removes: list[str]):
 		for child, parents in zip(children, all_parents):
 			for parent in parents:
-				self.cli.parse(f'm {K.ADD_FULL} {parent}')
-			self.cli.parse(f'm {K.ADD_FULL} {child} {" ".join(parents)}')
+				self.cli.parse(f'm {K.ADD} {parent}')
+			self.cli.parse(f'm {K.ADD} {child} {" ".join(parents)}')
 
 		for to_remove in to_removes:
-			self.cli.parse(f'm {K.DELETE_FULL} {to_remove}')  # TODO: correct test after addint the confirmation of the removal
+			self.cli.parse(f'm {K.DELETE} {to_remove}')  # TODO: correct test after addint the confirmation of the removal
 
 		for child, e_parents in zip(children, e_all_parents):
 			node = NodesManager.get_node(child)
@@ -133,12 +133,12 @@ class NodeConnectingTest(AbstractTest):
 	])
 	def test_remove_children_nodes(self, name: str, e_all_children: list[str], parents: list[str], all_children: list[str], to_removes: list[str]):
 		for parent, children in zip(parents, all_children):
-			self.cli.parse(f'm {K.ADD_FULL} {parent}')
+			self.cli.parse(f'm {K.ADD} {parent}')
 			for child in children:
-				self.cli.parse(f'm {K.ADD_FULL} {child} {" ".join(parents)}')
+				self.cli.parse(f'm {K.ADD} {child} {" ".join(parents)}')
 
 		for to_remove in to_removes:
-			self.cli.parse(f'm {K.DELETE_SHORT} {to_remove}')  # TODO: correct test after addint the confirmation of the removal
+			self.cli.parse(f'm {K.DEL} {to_remove}')  # TODO: correct test after addint the confirmation of the removal
 
 		for parent, e_children in zip(parents, e_all_children):
 			node = NodesManager.get_node(parent)

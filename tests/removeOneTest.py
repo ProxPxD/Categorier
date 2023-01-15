@@ -30,12 +30,12 @@ class RemoveOneTest(AbstractTest):
 	def test_delete_one_ancestor_from_node(self, node_name: str, e_parents: list[str], parents_to_remove: list[str], all_parents: list[str], all_grandparents: list[list[str]]):
 		for parent, grandparents in zip(all_parents, all_grandparents):
 			for grandparent in filter(NodesManager.is_not_in_data, grandparents):
-				self.cli.parse(f'm {K.ADD_FULL} {grandparent}')
-			self.cli.parse(f'm {K.ADD_FULL} {parent} {" ".join(grandparents)}')
+				self.cli.parse(f'm {K.ADD} {grandparent}')
+			self.cli.parse(f'm {K.ADD} {parent} {" ".join(grandparents)}')
 
-		self.cli.parse(f'm {K.ADD_FULL} {node_name} {" ".join(all_parents)}')
+		self.cli.parse(f'm {K.ADD} {node_name} {" ".join(all_parents)}')
 
-		self.cli.parse(f'm {K.DELETE_FULL} {K.JUST} {" ".join(parents_to_remove)} {K.FROM} {node_name}')
+		self.cli.parse(f'm {K.DELETE} {K.JUST} {" ".join(parents_to_remove)} {K.FROM} {node_name}')
 
 		node = NodesManager.get_node(node_name)
 		self.assertCountEqual(e_parents, node.parents)

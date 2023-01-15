@@ -5,9 +5,9 @@ from smartcli import Cli
 
 @dataclass
 class Keywords:
-	ADD_FULL = 'add'
-	DELETE_FULL = 'delete'
-	DELETE_SHORT = 'del'
+	ADD = 'add'
+	DELETE = 'delete'
+	DEL = 'del'
 	SET = 'set'
 
 	FLAT_SHORT = '-f'
@@ -17,6 +17,9 @@ class Keywords:
 	MANY = 'many'
 	AND = 'and'
 	JUST = 'just'
+
+	NODE = 'node'
+	NODES = 'nodes'
 	VALUE = 'value'
 	VALUES = 'values'
 
