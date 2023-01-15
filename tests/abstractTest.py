@@ -48,6 +48,7 @@ class AbstractTest(unittest.TestCase, abc.ABC):
         if not self.get_method_name().startswith('test_'):
             return
         super().tearDown()
+        self.test_path.unlink()
         result = self.defaultTestResult()
         self._feedErrorsToResult(result, self._outcome.errors)
 
