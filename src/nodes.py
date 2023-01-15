@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from abc import ABC
 from dataclasses import dataclass
+from itertools import cycle, repeat
 from pathlib import Path
 from typing import Iterable
 
@@ -68,7 +69,7 @@ class NodesManager(DataManager):
 		return node
 
 	@classmethod
-	def add_nodes(cls, *names: str, all_parents: Iterable[Iterable[str]], all_children: Iterable[Iterable[str]]):
+	def add_nodes(cls, *names: str, all_parents: Iterable[Iterable[str]] = repeat(None), all_children: Iterable[Iterable[str]] = repeat(None)):
 		nodes = []
 		for name, parents, children in zip(names, all_parents, all_children):
 			node = cls.add_node(name, parents=parents, children=children)
