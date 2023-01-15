@@ -10,6 +10,8 @@ class Keywords:
 	DEL = 'del'
 	SET = 'set'
 	UNSET = 'unset'
+	CHANGE = 'change'
+	RENAME = 'rename'
 
 	FLAT_SHORT = '-f'
 	FLAT_LONG = '--flat'
@@ -19,6 +21,7 @@ class Keywords:
 	AND = 'and'
 	JUST = 'just'
 
+	NAME = 'name'
 	NODE = 'node'
 	NODES = 'nodes'
 	VALUE = 'value'
@@ -27,6 +30,7 @@ class Keywords:
 	TO = 'to'
 	FROM = 'from'
 	IN = 'in'
+	OF = 'of'
 
 	DESCRIPTION = 'description'
 	DESCR = 'descr'

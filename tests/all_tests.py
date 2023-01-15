@@ -1,6 +1,7 @@
 import unittest
 
 from abstractTest import AbstractTest
+from changeTest import ChangeTest
 from descriptionTest import DescriptionTest
 from flatConnectingTest import FlatConnectingTest
 from multipleNodesTest import MultipleNodesTest
@@ -15,6 +16,7 @@ tests = [
     FlatConnectingTest,
     RemoveOneTest,
     NodeSettingValuesTest,
+    ChangeTest,
 ]
 
 
