@@ -8,6 +8,8 @@ from typing import Iterable
 
 import yaml
 
+from exceptions import NodeExistsInDataBase
+
 
 @dataclass(frozen=True)
 class Paths:
@@ -87,7 +89,7 @@ class NodesManager(DataManager):
 	@classmethod
 	def create_node(cls, name: str, *, parents: Iterable[str] = None, children: Iterable[str] = None) -> Node:
 		if cls.is_in_data(name):
-			raise ValueError
+			raise NodeExistsInDataBase(name)
 		node = Node(name)
 		node.add_parents(*list(parents or []))
 		node.add_children(*list(children or []))

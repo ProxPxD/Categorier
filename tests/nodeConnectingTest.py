@@ -56,7 +56,7 @@ class NodeConnectingTest(AbstractCategorierTest):
 								['p', 'p', 'p'],
 								[['g', 'g'], ['g', 'g'], ['g', 'g']]),
 	])
-	def test_add_ancestors_to_node(self, node_name: str, e_all_parents: list[str], e_all_grandparents: list[list[str]], all_parents: list[str], all_grandparents: list[list[str]]):
+	def test_add_ancestors_with_node(self, node_name: str, e_all_parents: list[str], e_all_grandparents: list[list[str]], all_parents: list[str], all_grandparents: list[list[str]]):
 		for parent, grandparents in zip(all_parents, all_grandparents):
 			for grandparent in filter(NodesManager.is_not_in_data, grandparents):
 				self.cli.parse(f'm {K.ADD} {grandparent}')
@@ -99,25 +99,27 @@ class NodeConnectingTest(AbstractCategorierTest):
 								['c', 'c', 'c'],
 								[['g', 'g'], ['g', 'g'], ['g', 'g']]),
 	])
-	def test_add_descendatns_to_node(self, node_name: str, e_all_children: list[str], e_all_grandchildren: list[list[str]], all_children: list[str], all_grandchildren: list[list[str]]):
-		self.cli.parse(f'm {K.ADD} {node_name}')
+	def test_categorize_nodes(self, node_name: str, e_all_children: list[str], e_all_grandchildren: list[list[str]], all_children: list[str], all_grandchildren: list[list[str]]):
+		for node in self.flatten_string_lists(node_name, all_children, all_grandchildren, unique=True):
+			self.cli.parse(f'm {K.ADD} {node}')
+
 		for child, grandchildren in zip(all_children, all_grandchildren):
-			self.cli.parse(f'm {K.ADD} {child} {node_name}')
-			for grandchild in filter(NodesManager.is_not_in_data, grandchildren):
-				self.cli.parse(f'm {K.ADD} {grandchild} {child}')
+			self.cli.parse(f'm {K.CATEGORIZE} {child} {K.AS} {node_name}')
+			for grandchild in grandchildren:
+				self.cli.parse(f'm {K.CAT} {grandchild} {child}')
 
 		node = NodesManager.get_node(node_name)
 		for child, grandchildren in zip(e_all_children, e_all_grandchildren):
 			child_node = node.children.get_node(child)
-			self.assertIn(child, node.children, 'expected child does not exist')
-			self.assertIn(node_name, child_node.parents, 'node not in child\'s parents')
+			self.assertIn(child, node.children.names, 'expected child does not exist')
+			self.assertIn(node_name, child_node.parents.names, 'node not in child\'s parents')
 			for grandchild in grandchildren:
 				grandchild_node = child_node.children.get_node(grandchild)
-				self.assertIn(grandchild, node.children.get_node(child).parents, 'expected grandparent does not exist')
-				self.assertIn(child, grandchild_node.parents, 'node not in child\'s parents (grandchild level)')
+				self.assertIn(grandchild, child_node.children.names, 'expected grandchild does not exist')
+				self.assertIn(child, grandchild_node.parents.names, 'node not in child\'s parents (grandchild level)')
 
-		e_descendants = set(e_all_children) | set(*e_all_grandchildren)
-		self.assertCountEqual(e_descendants, list(node.get_all_ancestors_names()), 'Amount of descendants does not match')
+		e_descendants = self.flatten_string_lists(e_all_children, e_all_grandchildren, unique=True)
+		self.assertCountEqual(e_descendants, list(node.get_all_descendants_names()), 'Amount of descendants does not match')
 
 	@parameterized.expand([
 		('normal_removal', [['p2']], ['c'], [['p1', 'p2']], ['p1']),

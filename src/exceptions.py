@@ -1,0 +1,2 @@
+class NodeExistsInDataBase(ValueError):
+	pass
