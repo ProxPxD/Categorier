@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC
 from dataclasses import dataclass
-from itertools import cycle, repeat
+from itertools import repeat, chain
 from pathlib import Path
 from typing import Iterable
 
@@ -82,8 +82,7 @@ class NodesManager(DataManager):
 	@classmethod
 	def add_node(cls, name: str, *, parents: Iterable[str] = None, children: Iterable[str] = None) -> Node:
 		node = cls.create_node(name, parents=parents, children=children)
-		cls.save_node(node)
-		return cls.get_node(name)
+		return node
 
 	@classmethod
 	def create_node(cls, name: str, *, parents: Iterable[str] = None, children: Iterable[str] = None) -> Node:
@@ -92,12 +91,14 @@ class NodesManager(DataManager):
 		node = Node(name)
 		node.add_parents(*list(parents or []))
 		node.add_children(*list(children or []))
+		cls.save_node(node)
+		for member in chain(node.parents, node.children):
+			cls.save_node(member)
 		return node
 
 	@classmethod
 	def save_node(cls, node: Node):
 		cls._data |= node.to_dict()
-		cls.save_data()
 
 	@classmethod
 	def is_in_data(cls, name: str) -> bool:
@@ -187,10 +188,15 @@ class NodesStorageField(CollectiveField, ABC):
 		while to_extend:
 			name = to_extend.pop()
 			if name not in yold:
+				yold.add(name)
 				node = NodesManager.get_node(name)
 				further = node.get_further(self.name).get_all()
 				to_extend.extend(further)
 				yield name
+
+	@property
+	def names(self) -> Iterable[str]:
+		return self._values
 
 	def get_names(self) -> Iterable[str]:
 		return self._values
@@ -221,7 +227,7 @@ class NodesStorageField(CollectiveField, ABC):
 		raise KeyError
 
 	def __iter__(self):
-		return iter(map(NodesManager.get_node, self.__iter__()))
+		return iter(map(NodesManager.get_node, super().__iter__()))
 
 
 class ParentNodesStorageField(NodesStorageField):
@@ -289,6 +295,8 @@ class NodesStorageFieldPossessor(IName):
 		put = further.get_node(to_put)
 		puts_opposite = put.get_further(opposite_type)
 		puts_opposite.add(self.name)
+		NodesManager.save_node(put)
+		NodesManager.save_node(self)
 
 	def remove_parents(self, *parents):
 		self._remove_member(*parents, further_type=MemberTypes.PARENTS)

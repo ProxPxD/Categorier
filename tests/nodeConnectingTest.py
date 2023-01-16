@@ -1,12 +1,11 @@
-from abstractTest import AbstractTest
-
 from parameterized import parameterized
 
-from nodes import NodesManager
+from abstractCategorierTest import AbstractCategorierTest
 from categorierCli import Keywords as K
+from nodes import NodesManager
 
 
-class NodeConnectingTest(AbstractTest):
+class NodeConnectingTest(AbstractCategorierTest):
 	@classmethod
 	def _get_test_name(cls) -> str:
 		return 'Node connecting'
@@ -68,14 +67,14 @@ class NodeConnectingTest(AbstractTest):
 		node = NodesManager.get_node(node_name)
 		for parent, grandparents in zip(e_all_parents, e_all_grandparents):
 			parent_node = node.parents.get_node(parent)
-			self.assertIn(parent, node.parents, 'expected parent does not exist')
+			self.assertIn(parent, node.parents.names, 'expected parent does not exist')
 			self.assertIn(node_name, parent_node.children, 'node not in parent\'s children')
 			for grandparent in grandparents:
 				grandparent_node = parent_node.parents.get_node(grandparent)
-				self.assertIn(grandparent, node.parents.get_node(parent).parents, 'expected grandparent does not exist')
-				self.assertIn(parent, grandparent_node.children, 'node not in parent\'s children (grandparent level)')
+				self.assertIn(grandparent, parent_node.parents, 'expected grandparent does not exist')
+				self.assertIn(parent, grandparent_node.children.names, 'node not in parent\'s children (grandparent level)')
 
-		e_ancestors = set(e_all_parents) | set(*e_all_grandparents)
+		e_ancestors = self.flatten_string_lists(e_all_parents, e_all_grandparents, unique=True)
 		self.assertCountEqual(e_ancestors, list(node.get_all_ancestors_names()), 'Amount of ancestors does not match')
 
 	@parameterized.expand([
