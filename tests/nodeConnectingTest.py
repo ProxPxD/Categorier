@@ -1,3 +1,5 @@
+from itertools import chain
+
 from parameterized import parameterized
 
 from abstractCategorierTest import AbstractCategorierTest
@@ -136,21 +138,23 @@ class NodeConnectingTest(AbstractCategorierTest):
 
 		for child, e_parents in zip(children, e_all_parents):
 			node = NodesManager.get_node(child)
-			self.assertCountEqual(e_parents, node.parents, 'parent node has not been deleted')
+			self.assertCountEqual(e_parents, node.parents.names, 'parent node has not been deleted')
 
 	@parameterized.expand([
 		('normal_removal', [['c2']], ['p'], [['c1', 'c2']], ['c1']),
 		('common_children', [['c1'], ['c3']], ['p1', 'p2'], [['c1', 'c2'], ['c2', 'c3']], ['c2']),
 	])
 	def test_remove_children_nodes(self, name: str, e_all_children: list[str], parents: list[str], all_children: list[str], to_removes: list[str]):
+		for node in self.flatten_string_lists(parents, all_children):
+			self.cli.parse(f'm {K.ADD} {node}')
+
 		for parent, children in zip(parents, all_children):
-			self.cli.parse(f'm {K.ADD} {parent}')
 			for child in children:
-				self.cli.parse(f'm {K.ADD} {child} {" ".join(parents)}')
+				self.cli.parse(f'm {K.CATEGORIZE} {child} {K.AS} {parent}')
 
 		for to_remove in to_removes:
 			self.cli.parse(f'm {K.DEL} {to_remove}')  # TODO: correct test after addint the confirmation of the removal
 
 		for parent, e_children in zip(parents, e_all_children):
 			node = NodesManager.get_node(parent)
-			self.assertCountEqual(e_children, node.children, 'parent node has not been deleted')
+			self.assertCountEqual(e_children, node.children.names, 'parent node has not been deleted')

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from itertools import chain
 
-from smartcli import Cli, Flag
+from smartcli import Cli, Flag, VisibleNode
 
 from exceptions import NodeExistsInDataBase
 from nodes import NodesManager
@@ -77,9 +77,12 @@ class CategorierCli(Cli):
 		self._add_parents_param = None
 		self._prep_flag: Flag = None
 
+		self._delete_node: VisibleNode = None
+
 		self._create_general_flags()
 		self._create_add_node()
 		self._create_categorize_node()
+		self._create_delete_node()
 
 	def _create_general_flags(self):
 		K = Keywords
@@ -120,4 +123,15 @@ class CategorierCli(Cli):
 		for node_name in node_names:
 			node = NodesManager.get_node(node_name)
 			node.add_parents(*cat_names)
+
+	def _create_delete_node(self):
+		self._delete_node = self.root.add_node(Keywords.DELETE, Keywords.DEL)
+		self._delete_node.add_param(Keywords.NODES, multi=True)
+		self._delete_node.add_action(self._delete_action)
+
+	def _delete_action(self):
+		to_deletes = self._delete_node.get_param(Keywords.NODES).get_as_list()
+		for to_delete in to_deletes:
+			NodesManager.delete_node(to_delete)
+
 

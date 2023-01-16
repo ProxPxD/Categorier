@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from abc import ABC
 from dataclasses import dataclass
+from functools import reduce
 from itertools import repeat, chain
 from pathlib import Path
 from typing import Iterable
 
 import yaml
+import operator as op
 
 from exceptions import NodeExistsInDataBase
 
@@ -51,9 +53,31 @@ class DataManager:
 
 class NodesManager(DataManager):
 
+	_active_nodes = dict()
+
+	@classmethod
+	def load_data(cls, path: str | Path = None):
+		cls._active_nodes.clear()
+		super().load_data(path)
+
 	@classmethod
 	def get_node(cls, name: str) -> Node:
-		return cls._get_node_from_data(name)
+		try:
+			return cls._active_nodes[name]
+		except KeyError:
+			return cls._get_node_from_data(name)
+
+	@classmethod
+	def _get_node_from_all(cls, node: Node | str) -> Node:
+		if isinstance(node, str):
+			node = cls.get_node(node)
+		return node
+
+	@classmethod
+	def _get_name_from_all(cls, node: Node | str) -> str:
+		if isinstance(node, Node):
+			node = node.name
+		return node
 
 	@classmethod
 	def get_nodes(cls, *names: str) -> Iterable[Node]:
@@ -63,6 +87,7 @@ class NodesManager(DataManager):
 	def _get_node_from_data(cls, name: str) -> Node:
 		node_data = cls._data[name]
 		node = cls.create_node_from_data(name, node_data)
+		cls._active_nodes[name] = node
 		return node
 
 	@classmethod
@@ -71,6 +96,7 @@ class NodesManager(DataManager):
 		node.parents = data.get(MemberTypes.PARENTS, tuple())
 		node.children = data.get(MemberTypes.CHILDREN, tuple())
 		node.descriptions = data.get(MemberTypes.DESCRIPTIONS, tuple())
+		cls._active_nodes[name] = node
 		return node
 
 	@classmethod
@@ -99,8 +125,25 @@ class NodesManager(DataManager):
 		return node
 
 	@classmethod
-	def save_node(cls, node: Node):
+	def save_node(cls, node: Node | str):
+		cls._active_nodes[node.name] = node
 		cls._data |= node.to_dict()
+
+	@classmethod
+	def save_active_nodes(cls):
+		update_dict = reduce(op.or_, map(Node.to_dict, cls._active_nodes.values()), {})
+		cls._data.update(update_dict)
+		cls._active_nodes.clear()
+
+	@classmethod
+	def delete_node(cls, node: Node | str):
+		node = cls._get_node_from_all(node)
+		parents = node.parents.names
+		children = node.children.names
+		node.remove_parents(*parents)
+		node.remove_children(*children)
+		cls._active_nodes.pop(node.name)
+		cls._data.pop(node.name)
 
 	@classmethod
 	def is_in_data(cls, name: str) -> bool:
@@ -198,7 +241,7 @@ class NodesStorageField(CollectiveField, ABC):
 
 	@property
 	def names(self) -> Iterable[str]:
-		return self._values
+		return self._values[:]
 
 	def get_names(self) -> Iterable[str]:
 		return self._values
@@ -221,11 +264,13 @@ class NodesStorageField(CollectiveField, ABC):
 			return NodesManager.get_node(name)
 		raise KeyError
 
-	def __getitem__(self, index: str | int) -> Node:
+	def __getitem__(self, index: str | int | slice) -> Node | Iterable[Node]:
 		if isinstance(index, int):
 			index = super().__getitem__(index)
 		if isinstance(index, str):
 			return self.get_node(index)
+		if isinstance(index, slice):
+			return self._values[index]
 		raise KeyError
 
 	def __iter__(self):
@@ -306,7 +351,7 @@ class NodesStorageFieldPossessor(IName):
 	def remove_children(self, *children):
 		self._remove_member(*children, further_type=MemberTypes.CHILDREN)
 
-	def _remove_member(self, *to_removes, further_type: str):
+	def _remove_member(self, *to_removes: str, further_type: str):
 		further = self.get_further(further_type)
 		opposite_type = MemberTypes.get_opposite_type(further_type)
 		nodes = map(further.get_node, to_removes)
@@ -372,3 +417,9 @@ class Node(NodesStorageFieldPossessor, IName, dict):
 		if value == '[]':
 			value = []
 		super().__setitem__(key, value)
+
+	def __str__(self):
+		return self.name
+
+	def __repr__(self):
+		return f'{self.name}: parents({str(self.parents.names)}), children({str(self.children.names)})'
