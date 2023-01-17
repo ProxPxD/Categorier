@@ -5,7 +5,7 @@ from nodes import NodesManager
 from categorierCli import Keywords as K
 
 
-class DeleteTest(AbstractTest):
+class DeleteOneParentTest(AbstractTest):
 	@classmethod
 	def _get_test_name(cls) -> str:
 		return 'Remove One'
