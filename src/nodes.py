@@ -110,7 +110,8 @@ class NodesManager(DataManager):
 	@classmethod
 	def add_node(cls, name: str, *, parents: Iterable[str] = None, children: Iterable[str] = None, descriptions: Iterable[str] = None) -> Node:
 		node = cls.create_node(name, parents=parents, children=children)
-		node.descriptions = descriptions[:]
+		if descriptions:
+			node.descriptions = descriptions[:]
 		return node
 
 	@classmethod
