@@ -81,7 +81,7 @@ class FlatConnectingTest(AbstractCategorierTest):
 			self.cli.parse(f'm {K.ADD} {node_name}')
 
 		for parent, grandparents in zip(all_parents, all_grandparents):
-			self.cli.parse(f'm {K.ADD} {parent} {" ".join(grandparents)}')
+			self.cli.parse(f'm {K.CATEGORIZE} {parent} {" ".join(grandparents)}')
 
 		self.cli.parse(f'm {flag} {node_name} {K.ALL_FLAT_LONG} {" ".join(all_parents)}')
 
