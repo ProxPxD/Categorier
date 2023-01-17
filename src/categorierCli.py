@@ -5,7 +5,7 @@ from more_itertools import split_at
 from smartcli import Cli, Flag, VisibleNode
 
 from exceptions import NodeExistsInDataBase
-from nodes import NodesManager, MemberTypes
+from nodes import NodesManager, MemberTypes, Node
 
 
 @dataclass
@@ -84,7 +84,7 @@ class CategorierCli(Cli):
 
 		self._delete_node: VisibleNode = None
 		self._delete_description_node: VisibleNode = None
-		self._delete_just_parent_node: VisibleNode = None
+		self._delete_just_ancestor_node: VisibleNode = None
 
 		self._create_general_flags()
 		self._create_add_node()
@@ -206,8 +206,18 @@ class CategorierCli(Cli):
 				del node.descriptions[to_delete - i]
 
 	def _create_delete_just_parent_node(self):
-		self._delete_just_parent_node = self._delete_node.add_node(Keywords.JUST)
-		self._delete_just_parent_node.add_param(Keywords.NODES, multi=True)
+		self._delete_just_ancestor_node = self._delete_node.add_node(Keywords.JUST)
+		self._delete_just_ancestor_node.add_param(Keywords.NODES, multi=True)
+		self._delete_just_ancestor_node.add_action(self._delete_just_ancestor_node_action)
 
+	def _delete_just_ancestor_node_action(self):
+		to_deletes = self._delete_just_ancestor_node.get_param(Keywords.NODES).get_as_list()
+		node_names = self._prep_flag.get_as_list()
 
+		for node_name in node_names:
+			node = NodesManager.get_node(node_name)
+			for to_delete in to_deletes:
+				self._delete_just_ancestor_helper(node, to_delete)
 
+	def _delete_just_ancestor_helper(self, node: Node, to_delete):
+		raise NotImplementedError
