@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from functools import reduce
 from itertools import repeat, chain
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Any
 
 import yaml
 import operator as op
@@ -100,16 +100,17 @@ class NodesManager(DataManager):
 		return node
 
 	@classmethod
-	def add_nodes(cls, *names: str, all_parents: Iterable[Iterable[str]] = repeat(None), all_children: Iterable[Iterable[str]] = repeat(None)):
+	def add_nodes(cls, *names: str, all_parents: Iterable[Iterable[str]] = repeat(None), all_children: Iterable[Iterable[str]] = repeat(None), all_descriptions: Iterable[Iterable[str]] = repeat(None)):
 		nodes = []
-		for name, parents, children in zip(names, all_parents, all_children):
-			node = cls.add_node(name, parents=parents, children=children)
+		for name, parents, children, descriptions in zip(names, all_parents, all_children, all_descriptions):
+			node = cls.add_node(name, parents=parents, children=children, descriptions=descriptions)
 			nodes.append(node)
 		return nodes
 
 	@classmethod
-	def add_node(cls, name: str, *, parents: Iterable[str] = None, children: Iterable[str] = None) -> Node:
+	def add_node(cls, name: str, *, parents: Iterable[str] = None, children: Iterable[str] = None, descriptions: Iterable[str] = None) -> Node:
 		node = cls.create_node(name, parents=parents, children=children)
+		node.descriptions = descriptions[:]
 		return node
 
 	@classmethod
@@ -368,7 +369,7 @@ class Node(NodesStorageFieldPossessor, IName, dict):
 		super().__init__(name=name, **kwargs)
 
 	@property
-	def descriptions(self):
+	def descriptions(self) -> list:
 		return self[MemberTypes.DESCRIPTIONS]
 
 	@descriptions.setter
@@ -395,6 +396,8 @@ class Node(NodesStorageFieldPossessor, IName, dict):
 					return
 
 				raise ValueError
+			case MemberTypes.DESCRIPTIONS:
+				self[name] = value
 			case _:
 				self.__dict__[name] = value
 
@@ -409,9 +412,13 @@ class Node(NodesStorageFieldPossessor, IName, dict):
 		return hash(self.name)
 
 	def __getitem__(self, key):
-		if key == MemberTypes.DESCRIPTIONS:
-			self.setdefault(key, [])
-		return super().__getitem__(key)
+		try:
+			return super().__getitem__(key)
+		except KeyError:
+			if key in (MemberTypes.DESCRIPTIONS, ):
+				self[key] = []
+				return super().__getitem__(key)
+			raise KeyError
 
 	def __setitem__(self, key, value):
 		if value == '[]':

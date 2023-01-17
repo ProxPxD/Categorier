@@ -13,7 +13,7 @@ class DescriptionTest(AbstractTest):
 	@parameterized.expand([
 		('one_to_one', [['d']], ['d'], ['n']),
 		('many_to_one', [['d1', 'd2', 'd3']], ['d1', 'd2', 'd3'], ['n']),
-		('one_to_many', [['d'], ['d'], ['d'], ['d']], ['n1', 'n2', 'n3', 'n4']),
+		('one_to_many', [['d'], ['d'], ['d'], ['d']], ['d'], ['n1', 'n2', 'n3', 'n4']),
 		('many_to_many_same_amount', [['d1', 'd2', 'd3'], ['d1', 'd2', 'd3'], ['d1', 'd2', 'd3']], ['d1', 'd2', 'd3'], ['n1', 'n2', 'n3']),
 		('many_to_many_less_descriptions', [['d1', 'd2'], ['d1', 'd2'], ['d1', 'd2']], ['d1', 'd2'], ['n1', 'n2', 'n3']),
 		('many_to_many_less_nodes', [['d1', 'd2', 'd3'], ['d1', 'd2', 'd3'], ['d1', 'd2', 'd3']], ['d1', 'd2', 'd3'], ['n1', 'n2']),
@@ -35,7 +35,7 @@ class DescriptionTest(AbstractTest):
 	@parameterized.expand([
 		('one_to_one', [['d']], ['d'], ['n']),
 		('many_to_one', [['d1', 'd2', 'd3']], ['d1', 'd2', 'd3'], ['n']),
-		('one_to_many', [['d'], ['d'], ['d'], ['d']], ['n1', 'n2', 'n3', 'n4']),
+		('one_to_many', [['d'], ['d'], ['d'], ['d']], ['d'], ['n1', 'n2', 'n3', 'n4']),
 		('many_to_many_same_amount', [['d1', 'd2', 'd3'], ['d1', 'd2', 'd3'], ['d1', 'd2', 'd3']], ['d1', 'd2', 'd3'], ['n1', 'n2', 'n3']),
 		('many_to_many_less_descriptions', [['d1', 'd2'], ['d1', 'd2'], ['d1', 'd2']], ['d1', 'd2'], ['n1', 'n2', 'n3']),
 		('many_to_many_less_nodes', [['d1', 'd2', 'd3'], ['d1', 'd2', 'd3'], ['d1', 'd2', 'd3']], ['d1', 'd2', 'd3'], ['n1', 'n2']),

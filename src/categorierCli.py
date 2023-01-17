@@ -1,12 +1,11 @@
 from dataclasses import dataclass
 from itertools import chain, repeat
-from typing import Iterable
 
 from more_itertools import split_at
 from smartcli import Cli, Flag, VisibleNode
 
 from exceptions import NodeExistsInDataBase
-from nodes import NodesManager
+from nodes import NodesManager, MemberTypes
 
 
 @dataclass
@@ -45,6 +44,7 @@ class Keywords:
 	BY = 'by'
 	AS = 'as'
 
+	DESCRIPTIONS = 'descriptions'
 	DESCRIPTION = 'description'
 	DESCR = 'descr'
 	DESCRIPTION_FLAG = '-d'
@@ -74,10 +74,13 @@ class CategorierCli(Cli):
 		NodesManager.load_data()
 		self._add_node: VisibleNode = None
 		self._add_many_node: VisibleNode = None
+		self._add_description_node: VisibleNode = None
+
 		self._with_parents = None
 		self._with_children = None
 		self._add_parents_param = None
 		self._prep_flag: Flag = None
+		self._description_flag: Flag = None
 
 		self._delete_node: VisibleNode = None
 
@@ -90,12 +93,14 @@ class CategorierCli(Cli):
 		K = Keywords
 		self._prep_flag = self.root.add_flag(K.TO, K.FROM, K.IN, K.OF, K.BY, K.AS)
 		self._prep_flag.set_to_multi_at_least_one()
+		self._description_flag = self.root.add_flag(K.DESCRIPTION_FLAG, multi=True)
 
 	def _create_add_node(self):
 		self._with_parents = self.root.add_flag(Keywords.WITH_PARENTS, flag_limit=None)
 		self._with_children = self.root.add_flag(Keywords.WITH_CHILDREN, flag_limit=None)
 		self._create_main_add_node()
 		self._create_add_many_node()
+		self._create_add_description_node()
 
 	def _create_main_add_node(self):
 		self._add_node = self.root.add_node(Keywords.ADD)
@@ -112,6 +117,8 @@ class CategorierCli(Cli):
 			node = NodesManager.add_node(add_name_param.get(),
 								  		 parents=chain(self._add_parents_param.get_as_list(), self._with_parents.get_as_list()),
 								  		 children=self._with_children.get_as_list())
+			descriptions = self._description_flag.get_as_list()
+			node[MemberTypes.DESCRIPTIONS].extend(descriptions)
 			# TODO: msg
 		except NodeExistsInDataBase:
 			pass  # TODO: msg
@@ -126,11 +133,13 @@ class CategorierCli(Cli):
 			node_names = self._add_many_node.get_param(Keywords.NODES).get_as_list()
 			parents = self._with_parents.get_as_list() + self._prep_flag.get_as_list()
 			children = self._with_children.get_as_list()
+			descriptions = self._description_flag.get_as_list()
 			n = len(node_names)
 			all_parents = self._split_by_conjunction_or_repeat(parents, n=n)
 			all_children = self._split_by_conjunction_or_repeat(children, n=n)
+			all_descriptions = self._split_by_conjunction_or_repeat(descriptions, n=n)
 
-			NodesManager.add_nodes(*node_names, all_parents=all_parents, all_children=all_children)
+			NodesManager.add_nodes(*node_names, all_parents=all_parents, all_children=all_children, all_descriptions=all_descriptions)
 		except NodeExistsInDataBase:
 			pass  # TODO: msg
 
@@ -138,6 +147,18 @@ class CategorierCli(Cli):
 		if conjunction not in collection:
 			return repeat(collection, n)
 		return split_at(collection, lambda x: x == conjunction, keep_separator=False)
+
+	def _create_add_description_node(self):
+		self._add_description_node = self._add_node.add_node(Keywords.DESCRIPTION, Keywords.DESCR, Keywords.DESCRIPTIONS)
+		self._add_description_node.add_param(Keywords.DESCRIPTIONS, multi=True)
+		self._add_description_node.add_action(self._add_description_action)
+
+	def _add_description_action(self):
+		descriptions = self._add_description_node.get_param(Keywords.DESCRIPTIONS).get_as_list()
+		node_names = self._prep_flag.get_as_list()
+		for node_name in node_names:
+			node = NodesManager.get_node(node_name)
+			node.descriptions.extend(descriptions)
 
 	def _create_categorize_node(self):
 		self._cat_node = self.root.add_node(Keywords.CATEGORIZE, Keywords.CAT)
