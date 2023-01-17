@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from itertools import chain, repeat
+from typing import Iterable, Callable
 
-from more_itertools import split_at
+from more_itertools import split_at, unique_everseen
 from smartcli import Cli, Flag, VisibleNode
 
 from exceptions import NodeExistsInDataBase
@@ -81,6 +82,8 @@ class CategorierCli(Cli):
 		self._add_parents_param = None
 		self._prep_flag: Flag = None
 		self._description_flag: Flag = None
+		self._flat_flag: Flag = None
+		self._all_flat_flag: Flag = None
 
 		self._delete_node: VisibleNode = None
 		self._delete_description_node: VisibleNode = None
@@ -96,6 +99,8 @@ class CategorierCli(Cli):
 		self._prep_flag = self.root.add_flag(K.TO, K.FROM, K.IN, K.OF, K.BY, K.AS)
 		self._prep_flag.set_to_multi_at_least_one()
 		self._description_flag = self.root.add_flag(K.DESCRIPTION_FLAG, multi=True)
+		self._flat_flag = self.root.add_flag(K.FLAT_LONG, K.FLAT_SHORT, flag_limit=0)
+		self._all_flat_flag = self.root.add_flag(K.ALL_FLAT_LONG, K.FLAT_SHORT, flag_limit=0)
 
 	def _create_add_node(self):
 		self._with_parents = self.root.add_flag(Keywords.WITH_PARENTS, flag_limit=None)
@@ -115,13 +120,31 @@ class CategorierCli(Cli):
 
 	def _add_node_action(self):
 		try:
-			add_name_param = self._add_node.get_param(CliElements.NAME)
-			node = NodesManager.add_node(add_name_param.get(),
-								  		 parents=chain(self._add_parents_param.get_as_list(), self._with_parents.get_as_list()),
-								  		 children=self._with_children.get_as_list())
+			name = self._add_node.get_param(CliElements.NAME).get()
+			children = self._with_children.get_as_list()
+			parents = chain(self._add_parents_param.get_as_list(), self._with_parents.get_as_list())
+
+			if self._is_any_flat_active():
+				parents = self._get_desire_flat_parents(parents)
+
+			node = NodesManager.add_node(name, parents=parents, children=children)
 			descriptions = self._description_flag.get_as_list()
 			node[MemberTypes.DESCRIPTIONS].extend(descriptions)
 			# TODO: msg
+		except NodeExistsInDataBase:
+			pass  # TODO: msg
+
+	def _add_node_flat_action(self):
+		try:
+			name = self._add_node.get_param(CliElements.NAME).get()
+			children = self._with_children.get_as_list()
+			argument_parents = chain(self._add_parents_param.get_as_list(), self._with_parents.get_as_list())
+			end_parents = [p for parents in map(Node.get_all_ancestors_names, argument_parents) for p in parents]
+			unique_parents = unique_everseen(end_parents)
+
+			node = NodesManager.add_node(name, parents=list(unique_parents), children=children)
+			descriptions = self._description_flag.get_as_list()
+			node[MemberTypes.DESCRIPTIONS].extend(descriptions)
 		except NodeExistsInDataBase:
 			pass  # TODO: msg
 
@@ -170,11 +193,36 @@ class CategorierCli(Cli):
 	def _add_category_action(self):
 		cat_names = self._prep_flag.get_as_list()
 		node_names = self._cat_node.get_param(Keywords.NODES).get_as_list()
+
 		if not cat_names:
 			node_names, cat_names = node_names[:1], node_names[1:]
+
+		if self._is_any_flat_active():
+			cat_names = self._get_desire_flat_parents(cat_names)
+
 		for node_name in node_names:
 			node = NodesManager.get_node(node_name)
 			node.add_parents(*cat_names)
+
+	def _is_any_flat_active(self) -> bool:
+		return any(map(Flag.is_active, (self._flat_flag, self._all_flat_flag)))
+
+	def _get_desire_flat_parents(self, parents: Iterable[str]) -> Iterable[str]:
+		parents = list(parents)
+		if self._flat_flag.is_active():
+			desired = self._get_ancestors_using(parents, Node.get_final_ancestors)
+		if self._all_flat_flag.is_active():
+			further_ancestors = self._get_ancestors_using(parents, Node.get_all_ancestors_names)
+			desired = chain(parents, further_ancestors)
+
+		unique = unique_everseen(desired)
+		return unique
+
+	def _get_ancestors_using(self, parents: Iterable[str], ancestor_getter: Callable):
+		nodes = map(NodesManager.get_node, parents)
+		all_final = map(ancestor_getter, nodes)
+		flat_final = (a for ancestors in all_final for a in ancestors)
+		return flat_final
 
 	def _create_delete_node(self):
 		self._create_main_delete_node()

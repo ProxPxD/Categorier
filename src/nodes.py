@@ -211,6 +211,9 @@ class CollectiveField(Field):
 	def clear(self):
 		self.remove(*self.get_all())
 
+	def is_empty(self) -> bool:
+		return len(self) == 0
+
 	def __getitem__(self, index: int) -> Node:
 		return self.get_nth(index)
 
@@ -333,7 +336,7 @@ class NodesStorageFieldPossessor(IName):
 		if not to_put:
 			return
 		further = self.get_further(further_type)
-		if further.has_in_flattened_members(to_put):
+		if to_put in further.names:
 			return None
 		opposite_type = MemberTypes.PARENTS if further_type == MemberTypes.CHILDREN else MemberTypes.CHILDREN
 		opposite = self.get_further(opposite_type)
