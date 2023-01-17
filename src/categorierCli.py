@@ -84,6 +84,7 @@ class CategorierCli(Cli):
 
 		self._delete_node: VisibleNode = None
 		self._delete_description_node: VisibleNode = None
+		self._delete_just_parent_node: VisibleNode = None
 
 		self._create_general_flags()
 		self._create_add_node()
@@ -177,6 +178,7 @@ class CategorierCli(Cli):
 
 	def _create_delete_node(self):
 		self._create_main_delete_node()
+		self._create_delete_just_parent_node()
 		self._create_delete_description_node()
 
 	def _create_main_delete_node(self):
@@ -202,6 +204,10 @@ class CategorierCli(Cli):
 			node = NodesManager.get_node(node_name)
 			for i, to_delete in enumerate(to_deletes):
 				del node.descriptions[to_delete - i]
+
+	def _create_delete_just_parent_node(self):
+		self._delete_just_parent_node = self._delete_node.add_node(Keywords.JUST)
+		self._delete_just_parent_node.add_param(Keywords.NODES, multi=True)
 
 
 
