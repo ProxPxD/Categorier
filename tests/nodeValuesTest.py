@@ -5,7 +5,7 @@ from categorierCli import Keywords as K
 from nodes import NodesManager
 
 
-class NodeSettingValuesTest(AbstractCategorierTest):
+class NodeValuesTest(AbstractCategorierTest):
 	@classmethod
 	def _get_test_name(cls) -> str:
 		return 'Node Setting Values'

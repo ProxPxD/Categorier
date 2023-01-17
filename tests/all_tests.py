@@ -6,7 +6,7 @@ from descriptionTest import DescriptionTest
 from flatConnectingTest import FlatConnectingTest
 from multipleNodesTest import MultipleNodesTest
 from nodeConnectingTest import NodeConnectingTest
-from nodeSettingValuesTest import NodeSettingValuesTest
+from nodeValuesTest import NodeValuesTest
 from deleteAncestorTest import DeleteAncestorTest
 from searchTest import SearchTest
 
@@ -15,7 +15,7 @@ tests = [
     MultipleNodesTest,
     DescriptionTest,
     FlatConnectingTest,
-    NodeSettingValuesTest,
+    NodeValuesTest,
     DeleteAncestorTest,
     ChangeTest,
     SearchTest,
