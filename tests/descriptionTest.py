@@ -53,3 +53,20 @@ class DescriptionTest(AbstractTest):
 				self.fail('Some node has not been created')
 
 			self.assertCountEqual(e_descriptions, a_node.descriptions)
+
+	@parameterized.expand([
+		('single', [2]),
+		('many', [1, 3]),
+		('many_in_reverse', [3, 1]),
+	])
+	def test_delete_description(self, name, to_deletes: list[int]):
+		descriptions = 'those are descriptions'.split(' ')
+		node = NodesManager.add_node(name)
+		node.descriptions.extend(descriptions)
+
+		self.cli.parse(f'm {K.DEL} {K.DESCR} {" ".join(map(str, to_deletes))} {K.IN} {name}')
+
+		self.assertEqual(len(descriptions) - len(to_deletes), len(node.descriptions))
+		for to_delete in to_deletes:
+			self.assertNotIn(descriptions[to_delete-1], node.descriptions)
+

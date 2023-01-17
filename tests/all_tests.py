@@ -15,8 +15,8 @@ tests = [
     MultipleNodesTest,
     DescriptionTest,
     FlatConnectingTest,
-    DeleteTest,
     NodeSettingValuesTest,
+    DeleteTest,
     ChangeTest,
     SearchTest,
 ]

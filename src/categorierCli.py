@@ -83,6 +83,7 @@ class CategorierCli(Cli):
 		self._description_flag: Flag = None
 
 		self._delete_node: VisibleNode = None
+		self._delete_description_node: VisibleNode = None
 
 		self._create_general_flags()
 		self._create_add_node()
@@ -175,6 +176,10 @@ class CategorierCli(Cli):
 			node.add_parents(*cat_names)
 
 	def _create_delete_node(self):
+		self._create_main_delete_node()
+		self._create_delete_description_node()
+
+	def _create_main_delete_node(self):
 		self._delete_node = self.root.add_node(Keywords.DELETE, Keywords.DEL)
 		self._delete_node.add_param(Keywords.NODES, multi=True)
 		self._delete_node.add_action(self._delete_action)
@@ -183,5 +188,20 @@ class CategorierCli(Cli):
 		to_deletes = self._delete_node.get_param(Keywords.NODES).get_as_list()
 		for to_delete in to_deletes:
 			NodesManager.delete_node(to_delete)
+
+	def _create_delete_description_node(self):
+		self._delete_description_node = self._delete_node.add_node(Keywords.DESCRIPTION, Keywords.DESCRIPTIONS, Keywords.DESCR)
+		self._delete_description_node.add_param(Keywords.DESCRIPTIONS, multi=True)
+		self._delete_description_node.add_action(self._delete_description_action)
+
+	def _delete_description_action(self):
+		node_names = self._prep_flag.get_as_list()
+		to_deletes = self._delete_description_node.get_param(Keywords.DESCRIPTIONS).get_as_list()
+		to_deletes = [n-1 for n in sorted(map(int, to_deletes))]
+		for node_name in node_names:
+			node = NodesManager.get_node(node_name)
+			for i, to_delete in enumerate(to_deletes):
+				del node.descriptions[to_delete - i]
+
 
 
