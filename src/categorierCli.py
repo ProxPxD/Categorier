@@ -131,14 +131,13 @@ class CategorierCli(Cli):
 			all_children = self._split_by_conjunction_or_repeat(children, n=n)
 
 			NodesManager.add_nodes(*node_names, all_parents=all_parents, all_children=all_children)
-		except Exception:
-			pass
+		except NodeExistsInDataBase:
+			pass  # TODO: msg
 
 	def _split_by_conjunction_or_repeat(self, collection: list, conjunction=Keywords.AND, n=None):
 		if conjunction not in collection:
 			return repeat(collection, n)
-		else:
-			return split_at(collection, lambda x: x == conjunction, keep_separator=False)
+		return split_at(collection, lambda x: x == conjunction, keep_separator=False)
 
 	def _create_categorize_node(self):
 		self._cat_node = self.root.add_node(Keywords.CATEGORIZE, Keywords.CAT)
