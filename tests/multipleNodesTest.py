@@ -1,3 +1,5 @@
+from parameterized import parameterized
+
 from abstractTest import AbstractTest
 
 from categorierCli import Keywords as K
@@ -36,7 +38,11 @@ class MultipleNodesTest(AbstractTest):
 			self.assertIn(actual.name, nodes, 'Some node has not been created properly')
 			self.assertCountEqual(ancestors, actual.get_all_ancestors_names(), 'Some ancestor has not been assigned properly')
 
-	def test_add_many_with_separate_ancestors(self):
+	@parameterized.expand([
+		(K.TO,),
+		(K.WITH_PARENTS,),
+	])
+	def test_add_many_with_separate_ancestors(self, flag: str):
 		nodes = 'n1 n2 n3'.split(' ')
 		all_ancestors = [['a11', 'a12'], ['a21'], ['a31', 'a32', 'a33']]
 		ancestor_strings = (' '.join(ancestors) for ancestors in all_ancestors)
@@ -44,7 +50,7 @@ class MultipleNodesTest(AbstractTest):
 
 		flat_ancestors = set(ancestor for ancestors in all_ancestors for ancestor in ancestors)
 		self.cli.parse(f'm {K.ADD} {K.MANY} {" ".join(flat_ancestors)}')
-		self.cli.parse(f'm {K.ADD} {K.MANY} {" ".join(nodes)} {K.TO} {ancestors_and_string}')
+		self.cli.parse(f'm {K.ADD} {K.MANY} {" ".join(nodes)} {flag} {ancestors_and_string}')
 
 		for e_node, ancestors in zip(nodes, all_ancestors):
 			try:
@@ -52,4 +58,22 @@ class MultipleNodesTest(AbstractTest):
 			except KeyError:
 				self.fail('Some node has not been created')
 
-			self.assertCountEqual(ancestors, a_node.parents.get_all_names(), 'Some ancestor has not been assigned properly')
+			self.assertCountEqual(ancestors, a_node.parents.names, 'Some ancestor has not been assigned properly')
+
+	def test_add_many_with_separate_descendants(self):
+		nodes = 'n1 n2 n3'.split(' ')
+		all_descendants = [['d11', 'd12'], ['d21'], ['d31', 'd32', 'd33']]
+		descendant_strings = (' '.join(ancestors) for ancestors in all_descendants)
+		descendant_and_string = f' {K.AND} '.join(descendant_strings)
+
+		flat_ancestors = set(ancestor for ancestors in all_descendants for ancestor in ancestors)
+		self.cli.parse(f'm {K.ADD} {K.MANY} {" ".join(flat_ancestors)}')
+		self.cli.parse(f'm {K.ADD} {K.MANY} {" ".join(nodes)} {K.WITH_CHILDREN} {descendant_and_string}')
+
+		for e_node, descendants in zip(nodes, all_descendants):
+			try:
+				a_node = NodesManager.get_node(e_node)
+			except KeyError:
+				self.fail('Some node has not been created')
+
+			self.assertCountEqual(descendants, a_node.children.names, 'Some descendants has not been assigned properly')

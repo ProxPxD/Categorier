@@ -1,6 +1,8 @@
 from dataclasses import dataclass
-from itertools import chain
+from itertools import chain, repeat
+from typing import Iterable
 
+from more_itertools import split_at
 from smartcli import Cli, Flag, VisibleNode
 
 from exceptions import NodeExistsInDataBase
@@ -70,10 +72,10 @@ class CategorierCli(Cli):
 	def __init__(self, **kwargs):
 		super().__init__(**kwargs)
 		NodesManager.load_data()
-		self._add_node = None
+		self._add_node: VisibleNode = None
+		self._add_many_node: VisibleNode = None
 		self._with_parents = None
 		self._with_children = None
-		self._add_name_param = None
 		self._add_parents_param = None
 		self._prep_flag: Flag = None
 
@@ -90,10 +92,13 @@ class CategorierCli(Cli):
 		self._prep_flag.set_to_multi_at_least_one()
 
 	def _create_add_node(self):
-		self._add_node = self.root.add_node(Keywords.ADD)
+		self._with_parents = self.root.add_flag(Keywords.WITH_PARENTS, flag_limit=None)
+		self._with_children = self.root.add_flag(Keywords.WITH_CHILDREN, flag_limit=None)
+		self._create_main_add_node()
+		self._create_add_many_node()
 
-		self._with_parents = self._add_node.add_flag(Keywords.WITH_PARENTS, flag_limit=None)
-		self._with_children = self._add_node.add_flag(Keywords.WITH_CHILDREN, flag_limit=None)
+	def _create_main_add_node(self):
+		self._add_node = self.root.add_node(Keywords.ADD)
 
 		self._add_node.set_params(CliElements.NAME, CliElements.PARENTS)
 		self._add_name_param = self._add_node.get_param(CliElements.NAME)
@@ -103,12 +108,37 @@ class CategorierCli(Cli):
 
 	def _add_node_action(self):
 		try:
-			node = NodesManager.add_node(self._add_name_param.get(),
+			add_name_param = self._add_node.get_param(CliElements.NAME)
+			node = NodesManager.add_node(add_name_param.get(),
 								  		 parents=chain(self._add_parents_param.get_as_list(), self._with_parents.get_as_list()),
 								  		 children=self._with_children.get_as_list())
 			# TODO: msg
 		except NodeExistsInDataBase:
 			pass  # TODO: msg
+
+	def _create_add_many_node(self):
+		self._add_many_node = self._add_node.add_node(Keywords.MANY)
+		self._add_many_node.add_param(Keywords.NODES, multi=True)
+		self._add_many_node.add_action(self._add_many_nodes_action)
+
+	def _add_many_nodes_action(self):
+		try:
+			node_names = self._add_many_node.get_param(Keywords.NODES).get_as_list()
+			parents = self._with_parents.get_as_list() + self._prep_flag.get_as_list()
+			children = self._with_children.get_as_list()
+			n = len(node_names)
+			all_parents = self._split_by_conjunction_or_repeat(parents, n=n)
+			all_children = self._split_by_conjunction_or_repeat(children, n=n)
+
+			NodesManager.add_nodes(*node_names, all_parents=all_parents, all_children=all_children)
+		except Exception:
+			pass
+
+	def _split_by_conjunction_or_repeat(self, collection: list, conjunction=Keywords.AND, n=None):
+		if conjunction not in collection:
+			return repeat(collection, n)
+		else:
+			return split_at(collection, lambda x: x == conjunction, keep_separator=False)
 
 	def _create_categorize_node(self):
 		self._cat_node = self.root.add_node(Keywords.CATEGORIZE, Keywords.CAT)
