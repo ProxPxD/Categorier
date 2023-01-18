@@ -36,7 +36,9 @@ class Keywords:
 	NODE = 'node'
 	NODES = 'nodes'
 	VALUE = 'value'
+	VAL = 'val'
 	VALUES = 'values'
+	ARGUMENTS = 'arguments'
 
 	TO = 'to'
 	FROM = 'from'
@@ -76,6 +78,8 @@ class CategorierCli(Cli):
 		self._add_node: VisibleNode = None
 		self._add_many_node: VisibleNode = None
 		self._add_description_node: VisibleNode = None
+		self._add_values_node: VisibleNode = None
+		self._set_node: VisibleNode = None
 
 		self._with_parents = None
 		self._with_children = None
@@ -92,6 +96,7 @@ class CategorierCli(Cli):
 		self._create_general_flags()
 		self._create_add_node()
 		self._create_categorize_node()
+		self._create_set_node()
 		self._create_delete_node()
 
 	def _create_general_flags(self):
@@ -108,6 +113,7 @@ class CategorierCli(Cli):
 		self._create_main_add_node()
 		self._create_add_many_node()
 		self._create_add_description_node()
+		self._create_add_values_node()
 
 	def _create_main_add_node(self):
 		self._add_node = self.root.add_node(Keywords.ADD)
@@ -185,6 +191,23 @@ class CategorierCli(Cli):
 			node = NodesManager.get_node(node_name)
 			node.descriptions.extend(descriptions)
 
+	def _create_add_values_node(self):
+		self._add_values_node = self._add_node.add_node(Keywords.VALUES, Keywords.VALUE, Keywords.VAL)
+		self._add_values_node.add_param(Keywords.ARGUMENTS, multi=True)
+		self._add_values_node.add_action(self._add_values_action)
+
+	def _add_values_action(self):
+		node_names = self._prep_flag.get_as_list()
+		arguments = self._add_values_node.get_param(Keywords.ARGUMENTS).get_as_list()
+		key_value_pairs = list(split_at(arguments, lambda a: a == Keywords.AND, keep_separator=False))
+		for node_name in node_names:
+			node = NodesManager.get_node(node_name)
+			for key, *values in key_value_pairs:
+				try:
+					node[key].extend(values)
+				except KeyError:
+					node[key] = values[:]
+
 	def _create_categorize_node(self):
 		self._cat_node = self.root.add_node(Keywords.CATEGORIZE, Keywords.CAT)
 		self._cat_node.add_param(Keywords.NODES, multi=True)
@@ -223,6 +246,20 @@ class CategorierCli(Cli):
 		all_final = map(ancestor_getter, nodes)
 		flat_final = (a for ancestors in all_final for a in ancestors)
 		return flat_final
+
+	def _create_set_node(self):
+		self._set_node = self.root.add_node(Keywords.SET)
+		self._set_node.add_param(Keywords.ARGUMENTS, multi=True)
+		self._set_node.add_action(self._set_node_action)
+
+	def _set_node_action(self):
+		node_names = self._prep_flag.get_as_list()
+		arguments = self._set_node.get_param(Keywords.ARGUMENTS).get_as_list()
+		key_value_pairs = list(split_at(arguments, lambda a: a == Keywords.AND, keep_separator=False))
+		for node_name in node_names:
+			node = NodesManager.get_node(node_name)
+			for key, *values in key_value_pairs:
+				node[key] = values
 
 	def _create_delete_node(self):
 		self._create_main_delete_node()

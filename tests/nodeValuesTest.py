@@ -19,19 +19,19 @@ class NodeValuesTest(AbstractCategorierTest):
 
 		node = NodesManager.get_node(node_name)
 		self.assertIn(e_key, node.keys())
-		self.assertEqual(e_key, node.get(e_key))
+		self.assertEqual(e_value, node.get(e_key))
 
 	def test_set_single_list(self):
 		node_name = 'n'
 		NodesManager.add_node(node_name)
 		e_key = 'names'
-		e_value = ['Muhhamad', 'ibn', 'Hatimi']
+		e_values = ['Muhhamad', 'ibn', 'Hatimi']
 		self.cli.parse(f'm {K.SET} {e_key} [] {K.IN} {node_name}')
-		self.cli.parse(f'm {K.ADD} {K.VALUES} {" ".join(e_value)} {K.TO} {node_name}')
+		self.cli.parse(f'm {K.ADD} {K.VALUES} {e_key} {" ".join(e_values)} {K.TO} {node_name}')
 
 		node = NodesManager.get_node(node_name)
 		self.assertIn(e_key, node.keys())
-		self.assertIn(e_key, node.get(e_key))
+		self.assertCountEqual(e_values, node.get(e_key))
 
 	def test_set_many_values(self):
 		node_name = 'n'

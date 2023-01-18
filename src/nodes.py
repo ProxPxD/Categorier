@@ -425,9 +425,25 @@ class Node(NodesStorageFieldPossessor, IName, dict):
 			raise KeyError
 
 	def __setitem__(self, key, value):
-		if value == '[]':
-			value = []
+		if self._should_set_list(value):
+			super().__setitem__(key, [])
+			return
+		if self._should_be_treated_as_single_value(key, value):
+			super().__setitem__(key, value[0])
+			return
+
 		super().__setitem__(key, value)
+
+	def _should_be_treated_as_single_value(self, key, value):
+		return isinstance(value, Iterable) and not isinstance(value, str) and key not in self and len(value) == 1
+
+	def _should_set_list(self, value) -> bool:
+		if value == '[]':
+			return True
+		if not isinstance(value, Iterable) or isinstance(value, str):
+			return False
+		values = list(value)
+		return len(values) and values[0] == '[]'
 
 	def __str__(self):
 		return self.name
