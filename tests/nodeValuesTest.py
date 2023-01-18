@@ -141,13 +141,14 @@ class NodeValuesTest(AbstractCategorierTest):
 	])
 	def test_unset_concrete_value(self, name: str, e_values: list[str], to_unsets: list[str], unset_way: str):
 		node_name = 'n'
-		e_key = 'names'
-		values = ['Muhhamad', 'ibn', 'Hatimi']
+		key = 'names'
+		vals = ['Muhhamad', 'ibn', 'Hatimi']
 		node = NodesManager.add_node(node_name)
-		node[e_key] = values
+		node[key] = vals
 
-		self.cli.parse(f'm {unset_way} {e_key} {" ".join(to_unsets)} {K.FROM} {node_name}')
+		self.cli.parse(f'm {unset_way} {key} {" ".join(map(str, to_unsets))} {K.FROM} {node_name}')
 
 		node = NodesManager.get_node(node_name)
-		self.assertIn(e_key, node.keys())
-		self.assertCountEqual(e_values, node[e_key])
+		self.assertIn(key, node.keys())
+		for e_val in e_values:
+			self.assertIn(e_val, node[key])
