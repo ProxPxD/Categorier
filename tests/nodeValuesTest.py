@@ -25,7 +25,7 @@ class NodeValuesTest(AbstractCategorierTest):
 		node_name = 'n'
 		NodesManager.add_node(node_name)
 		e_key = 'names'
-		e_values = ['Muhhamad', 'ibn', 'Hatimi']
+		e_values = ['Muhamad', 'ibn', 'Hatimi']
 		self.cli.parse(f'm {K.SET} {e_key} [] {K.IN} {node_name}')
 		self.cli.parse(f'm {K.ADD} {K.VALUES} {e_key} {" ".join(e_values)} {K.TO} {node_name}')
 
@@ -56,13 +56,13 @@ class NodeValuesTest(AbstractCategorierTest):
 		node_name = 'n'
 		NodesManager.add_node(node_name)
 		e_keys = 'names', 'sons'
-		e_values = ['Muhhamad', 'ibn', 'Hatimi'], ['Ali', 'Arim']
+		e_values = ['Muhamad', 'ibn', 'Hatimi'], ['Ali', 'Arim']
 
 		for e_key in e_keys:
 			self.cli.parse(f'm {K.SET} {e_key} [] {K.IN} {node_name}')
 
 		input_string = f'm {K.SET}'
-		input_string += f' {K.AND} '.join((f'{e_key}' + ' '.join(e_key_values) for e_key, e_key_values in zip(e_keys, e_values)))
+		input_string += f' {K.AND} '.join((f' {e_key} ' + ' '.join(e_key_values) for e_key, e_key_values in zip(e_keys, e_values)))
 		input_string += f' {K.IN} {node_name}'
 		self.cli.parse(input_string)
 
