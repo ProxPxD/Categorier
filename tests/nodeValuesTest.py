@@ -125,7 +125,7 @@ class NodeValuesTest(AbstractCategorierTest):
 		for key, val in zip(keys, vals):
 			node[key] = val
 
-		self.cli.parse(f'm {K.UNSET} {keys[0]} {keys[1]} {K.FROM} {node_name}')
+		self.cli.parse(f'm {K.UNSET} {keys[0]} {K.AND} {keys[1]} {K.FROM} {node_name}')
 
 		node = NodesManager.get_node(node_name)
 		for key in keys:
@@ -150,4 +150,4 @@ class NodeValuesTest(AbstractCategorierTest):
 
 		node = NodesManager.get_node(node_name)
 		self.assertIn(e_key, node.keys())
-		self.assertIn(e_values, node[e_key])
+		self.assertCountEqual(e_values, node[e_key])
