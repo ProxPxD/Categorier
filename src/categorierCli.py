@@ -83,7 +83,7 @@ class CategorierCli(Cli):
 		self._add_values_node: VisibleNode = None
 		self._set_node: VisibleNode = None
 		self._unset_node: VisibleNode = None
-		self._argument_collection = CliCollection()
+		self._argument_collection: CliCollection = None
 
 		self._with_parents = None
 		self._with_children = None
@@ -97,6 +97,7 @@ class CategorierCli(Cli):
 		self._delete_description_node: VisibleNode = None
 		self._delete_just_ancestor_node: VisibleNode = None
 
+		self._argument_collection = self.root.add_collection('argument_collection')
 		self._create_general_flags()
 		self._create_add_node()
 		self._create_categorize_node()
@@ -292,8 +293,12 @@ class CategorierCli(Cli):
 				if not to_unsets:
 					del node[key]
 				else:
-					for to_unset in to_unsets:
-						node[key].remove(to_unset)
+					for i, to_unset in enumerate(to_unsets):
+						if to_unset in node[key]:
+							node[key].remove(to_unset)
+						elif to_unset.isnumeric():
+							to_unset = int(to_unset) - 1 - i
+							del node[key][to_unset]
 
 	def _create_delete_node(self):
 		self._create_main_delete_node()
