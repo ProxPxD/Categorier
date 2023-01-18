@@ -133,9 +133,20 @@ class CategorierCli(Cli):
 			if self._is_any_flat_active():
 				parents = self._get_desire_flat_parents(parents)
 
+			parents = list(parents)
+			set_args = None
+			if Keywords.SET in parents and parents and parents[-1] != Keywords.SET:
+				set_index = parents.index(Keywords.SET)
+				set_args = ['m'] + parents[set_index:] + [Keywords.TO, name]
+				parents = parents[:set_index]
+
 			node = NodesManager.add_node(name, parents=parents, children=children)
 			descriptions = self._description_flag.get_as_list()
 			node[MemberTypes.DESCRIPTIONS].extend(descriptions)
+
+			if set_args:
+				self.parse(set_args)
+
 			# TODO: msg
 		except NodeExistsInDataBase:
 			pass  # TODO: msg

@@ -74,12 +74,12 @@ class NodeValuesTest(AbstractCategorierTest):
 	def test_add_node_with_setting(self):
 		node_name = 'n'
 		e_key = 'Author'
-		e_value = 'Orwell'
-		self.cli.parse(f'm {K.ADD} {node_name} {K.SET} {e_key} {e_value}')
+		e_val = 'Orwell'
+		self.cli.parse(f'm {K.ADD} {node_name} {K.SET} {e_key} {e_val}')
 
 		node = NodesManager.get_node(node_name)
 		self.assertIn(e_key, node.keys())
-		self.assertEqual(e_key, node.get(e_key))
+		self.assertEqual(e_val, node.get(e_key))
 
 	def test_add_node_with_setting_many(self):
 		node_name = 'n'
