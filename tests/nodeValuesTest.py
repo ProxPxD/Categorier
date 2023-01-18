@@ -107,15 +107,29 @@ class NodeValuesTest(AbstractCategorierTest):
 
 	def test_unset_value(self):
 		node_name = 'n'
-		e_key = 'Author'
-		e_value = 'Orwell'
+		key = 'Author'
+		val = 'Orwell'
 		node = NodesManager.add_node(node_name)
-		node[e_key] = e_value
+		node[key] = val
 
-		self.cli.parse(f'm {K.UNSET} {e_key} {K.FROM} {node_name}')
+		self.cli.parse(f'm {K.UNSET} {key} {K.FROM} {node_name}')
 
 		node = NodesManager.get_node(node_name)
-		self.assertNotIn(e_key, node.keys())
+		self.assertNotIn(key, node.keys())
+
+	def test_unset_many_values(self):
+		node_name = 'n'
+		keys = 'Author', 'Year'
+		vals = 'Orwell', '1935'
+		node = NodesManager.add_node(node_name)
+		for key, val in zip(keys, vals):
+			node[key] = val
+
+		self.cli.parse(f'm {K.UNSET} {keys[0]} {keys[1]} {K.FROM} {node_name}')
+
+		node = NodesManager.get_node(node_name)
+		for key in keys:
+			self.assertNotIn(key, node.keys())
 
 	@parameterized.expand([
 		('unset', ['Muhhamad', 'Hatimi'], ['ibn'], K.UNSET),
