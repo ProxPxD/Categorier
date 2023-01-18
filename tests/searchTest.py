@@ -14,11 +14,15 @@ class SearchTest(AbstractTest):
 		return 'Search'
 
 	@parameterized.expand([
-		('by_value_in_search_string', ['Poland', 'Portugal', 'Czechia'], 'Europe', f'{K.BY} continent'),
+		('by_value_in_arguments', ['Poland', 'Portugal', 'Czechia'], 'Europe', f'{K.BY} continent'),
 		('by_value_in_by', ['Poland', 'Portugal', 'Czechia'], '', f'{K.BY} continent Europe'),
+		('by_values_in_arguments', ['Czechia'], 'Europe Cz', f'{K.BY} continent and memo'),
+		('by_values_in_arguments', ['Czechia', 'Chile'], 'Europe Ch', f'{K.BY} continent or memo'),
+		('by_values_in_by', ['Poland', 'Portugal'], '', f'{K.BY} continent Europe and memo P'),
+		('by_values_in_by', ['Poland', 'Portugal', 'Peru'], '', f'{K.BY} continent Europe or memo P'),
 		('by_value_not_set', ['Chile'], '', f'{K.BY} continent None'),
-		('by_name_explicit', ['Czechia', 'Colombia', 'Chile'], 'C', f'{K.BY} name'),
-		('by_name_implicit', ['Czechia', 'Colombia', 'Chile'], 'C', ''),
+		('by_name_explicit', ['Czechia', 'Colombia', 'Chile'], 'C', ''),
+		('by_name_implicit', ['Czechia', 'Colombia', 'Chile'], 'C', f'{K.BY} {K.MEMO}'),
 	])
 	def test_search(self, name: str, e_results: list[str], to_search: str, search_by: str):
 		countries = 'Poland', 'Portugal', 'Czechia', 'Peru', 'Colombia', 'Chile'

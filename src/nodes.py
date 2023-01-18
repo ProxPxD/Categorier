@@ -84,6 +84,10 @@ class NodesManager(DataManager):
 		return map(cls.get_node, names)
 
 	@classmethod
+	def get_all_names(cls) -> Iterable[str]:
+		return cls._data.keys()
+
+	@classmethod
 	def _get_node_from_data(cls, name: str) -> Node:
 		node_data = cls._data[name]
 		node = cls.create_node_from_data(name, node_data)

@@ -1,8 +1,10 @@
+import re
 from dataclasses import dataclass
 from itertools import chain, repeat
+from re import Pattern
 from typing import Iterable, Callable
 
-from more_itertools import split_at, unique_everseen
+from more_itertools import split_at, unique_everseen, chunked
 from smartcli import Cli, Flag, VisibleNode, CliCollection
 
 from exceptions import NodeExistsInDataBase
@@ -30,6 +32,7 @@ class Keywords:
 	WITH_CHILDREN = '--with_children'
 	MANY = 'many'
 	AND = 'and'
+	OR = 'or'
 	JUST = 'just'
 
 	NAME = 'name'
@@ -41,6 +44,7 @@ class Keywords:
 	KEY = 'key'
 	KEYS = 'keys'
 	ARGUMENTS = 'arguments'
+	MEMO = 'memo'
 
 	TO = 'to'
 	FROM = 'from'
@@ -97,6 +101,8 @@ class CategorierCli(Cli):
 		self._delete_description_node: VisibleNode = None
 		self._delete_just_ancestor_node: VisibleNode = None
 
+		self._search_node: VisibleNode = None
+
 		self._argument_collection = self.root.add_collection('argument_collection')
 		self._create_general_flags()
 		self._create_add_node()
@@ -104,6 +110,7 @@ class CategorierCli(Cli):
 		self._create_set_node()
 		self._create_unset_node()
 		self._create_delete_node()
+		self._create_search_node()
 
 	def _create_general_flags(self):
 		K = Keywords
@@ -344,7 +351,7 @@ class CategorierCli(Cli):
 			for to_delete in to_deletes:
 				self._delete_just_ancestor_helper(node, to_delete)
 
-	def _delete_just_ancestor_helper(self, node: Node, to_delete):
+	def _delete_just_ancestor_helper(self, node: Node, to_delete: str):
 		raise NotImplementedError
 
 	def _create_delete_values_node(self):
@@ -352,5 +359,43 @@ class CategorierCli(Cli):
 		self._delete_values_node.add_param(Keywords.ARGUMENTS, storage=self._argument_collection)
 		self._delete_values_node.add_action(self._unset_node_action)
 
-	def _delete_values_action(self):
-		raise NotImplementedError
+	def _create_search_node(self):
+		self._search_node = self.root.add_node(Keywords.SEARCH)
+		self._search_node.add_param(Keywords.ARGUMENTS, multi=True, lower_limit=0)
+		self._search_node.add_action(self._search_node_action)
+
+	def _search_node_action(self):
+		criteria = self._prep_flag.get_as_list()
+		if not criteria:
+			self._prep_flag.get_storage().append(Keywords.MEMO)
+		found = self._search_by_criteria()
+		for name in found:  # TODO: temporal printing
+			print(name)
+
+	def _search_by_criteria(self):
+		K = Keywords
+		arguments = self._search_node.get_param(Keywords.ARGUMENTS).get_as_list()
+		criteria = self._prep_flag.get_as_list()
+		func = all if K.AND in criteria else any if K.OR in criteria else None
+		grouped = split_at(criteria, lambda w: w in (K.AND, K.OR), keep_separator=False)
+		criteria_argument_pair = zip(map(lambda g: g[0], grouped), arguments) if arguments else chunked(grouped, 2, strict=True)
+		criteria_pattern_pair = map(lambda p: (p[0], re.compile(p[1])), criteria_argument_pair)
+		condition = self._get_search_condition(criteria_pattern_pair, func)
+		found = filter(condition, map(NodesManager.get_node, NodesManager.get_all_names()))
+		return found
+
+	def _get_search_condition(self, criteria_pattern_pair: Iterable[tuple[str, Pattern]], func: Callable):
+		criteria_pattern_pair_list = list(criteria_pattern_pair)
+		if func is not None:
+			return lambda node: func((self._verify_criterion(criterion, pattern, node) for criterion, pattern in criteria_pattern_pair_list))
+		else:
+			criterion, pattern = criteria_pattern_pair_list[0]
+			return lambda node: self._verify_criterion(criterion, pattern, node)
+
+	def _verify_criterion(self, criterion, pattern, node):
+		try:
+			return pattern.search(node.get(criterion))
+		except KeyError:
+			if criterion == Keywords.MEMO:
+				return pattern.search(node.name)
+			return False
