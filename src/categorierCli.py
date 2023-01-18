@@ -3,7 +3,7 @@ from itertools import chain, repeat
 from typing import Iterable, Callable
 
 from more_itertools import split_at, unique_everseen
-from smartcli import Cli, Flag, VisibleNode
+from smartcli import Cli, Flag, VisibleNode, CliCollection
 
 from exceptions import NodeExistsInDataBase
 from nodes import NodesManager, MemberTypes, Node
@@ -83,6 +83,7 @@ class CategorierCli(Cli):
 		self._add_values_node: VisibleNode = None
 		self._set_node: VisibleNode = None
 		self._unset_node: VisibleNode = None
+		self._argument_collection = CliCollection()
 
 		self._with_parents = None
 		self._with_children = None
@@ -278,21 +279,27 @@ class CategorierCli(Cli):
 
 	def _create_unset_node(self):
 		self._unset_node = self.root.add_node(Keywords.UNSET)
-		self._unset_node.add_param(Keywords.KEYS, multi=True)
+		self._unset_node.add_param(Keywords.ARGUMENTS, storage=self._argument_collection)
 		self._unset_node.add_action(self._unset_node_action)
 
 	def _unset_node_action(self):
 		node_names = self._prep_flag.get_as_list()
-		keys = self._unset_node.get_param(Keywords.KEYS).get_as_list()
+		arguments = self._argument_collection.get_as_list()
+		key_value_pairs = list(split_at(arguments, lambda a: a == Keywords.AND, keep_separator=False))
 		for node_name in node_names:
 			node = NodesManager.get_node(node_name)
-			for key in keys:
-				del node[key]
+			for key, *to_unsets in key_value_pairs:
+				if not to_unsets:
+					del node[key]
+				else:
+					for to_unset in to_unsets:
+						node[key].remove(to_unset)
 
 	def _create_delete_node(self):
 		self._create_main_delete_node()
 		self._create_delete_just_parent_node()
 		self._create_delete_description_node()
+		self._create_delete_values_node()
 
 	def _create_main_delete_node(self):
 		self._delete_node = self.root.add_node(Keywords.DELETE, Keywords.DEL)
@@ -333,4 +340,12 @@ class CategorierCli(Cli):
 				self._delete_just_ancestor_helper(node, to_delete)
 
 	def _delete_just_ancestor_helper(self, node: Node, to_delete):
+		raise NotImplementedError
+
+	def _create_delete_values_node(self):
+		self._delete_values_node = self._delete_node.add_node(Keywords.VALUES, Keywords.VALUE, Keywords.VAL)
+		self._delete_values_node.add_param(Keywords.ARGUMENTS, storage=self._argument_collection)
+		self._delete_values_node.add_action(self._unset_node_action)
+
+	def _delete_values_action(self):
 		raise NotImplementedError
