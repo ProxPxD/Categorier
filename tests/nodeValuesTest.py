@@ -37,13 +37,13 @@ class NodeValuesTest(AbstractCategorierTest):
 		node_name = 'n'
 		NodesManager.add_node(node_name)
 		e_keys = 'Author', 'year', 'type'
-		e_values = 'Orwell', 1934, 'Dystopia'
+		e_values = 'Orwell', '1934', 'Dystopia'
 
 		input_string = 'm'
 		for key, value in zip(e_keys, e_values):
 			input_string += f' {K.AND} {key} {value}'
 		input_string += f' {K.IN} {node_name}'
-		input_string = input_string.replace(K.ADD, K.SET, 1)
+		input_string = input_string.replace(K.AND, K.SET, 1)
 
 		self.cli.parse(input_string)
 
