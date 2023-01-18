@@ -35,9 +35,11 @@ class Keywords:
 	NAME = 'name'
 	NODE = 'node'
 	NODES = 'nodes'
-	VALUE = 'value'
 	VAL = 'val'
+	VALUE = 'value'
 	VALUES = 'values'
+	KEY = 'key'
+	KEYS = 'keys'
 	ARGUMENTS = 'arguments'
 
 	TO = 'to'
@@ -80,6 +82,7 @@ class CategorierCli(Cli):
 		self._add_description_node: VisibleNode = None
 		self._add_values_node: VisibleNode = None
 		self._set_node: VisibleNode = None
+		self._unset_node: VisibleNode = None
 
 		self._with_parents = None
 		self._with_children = None
@@ -97,6 +100,7 @@ class CategorierCli(Cli):
 		self._create_add_node()
 		self._create_categorize_node()
 		self._create_set_node()
+		self._create_unset_node()
 		self._create_delete_node()
 
 	def _create_general_flags(self):
@@ -271,6 +275,19 @@ class CategorierCli(Cli):
 			node = NodesManager.get_node(node_name)
 			for key, *values in key_value_pairs:
 				node[key] = values
+
+	def _create_unset_node(self):
+		self._unset_node = self.root.add_node(Keywords.UNSET)
+		self._unset_node.add_param(Keywords.KEYS, multi=True)
+		self._unset_node.add_action(self._unset_node_action)
+
+	def _unset_node_action(self):
+		node_names = self._prep_flag.get_as_list()
+		keys = self._unset_node.get_param(Keywords.KEYS).get_as_list()
+		for node_name in node_names:
+			node = NodesManager.get_node(node_name)
+			for key in keys:
+				del node[key]
 
 	def _create_delete_node(self):
 		self._create_main_delete_node()
