@@ -45,6 +45,7 @@ class Keywords:
 	KEYS = 'keys'
 	ARGUMENTS = 'arguments'
 	MEMO = 'memo'
+	NONE = 'None'
 
 	TO = 'to'
 	FROM = 'from'
@@ -370,7 +371,7 @@ class CategorierCli(Cli):
 			self._prep_flag.get_storage().append(Keywords.MEMO)
 		found = list(self._search_by_criteria())
 		for i, node in enumerate(found):  # TODO: temporal printing
-			self.out(f'{i+1}) {node.name}')  # TODO implement the out in smartcli
+			self.out(node.name)  # TODO implement the out in smartcli
 
 	def _search_by_criteria(self):
 		K = Keywords
@@ -380,7 +381,7 @@ class CategorierCli(Cli):
 		grouped_by_criteria = split_at(criteria, lambda w: w in (K.AND, K.OR), keep_separator=False)
 		if arguments:
 			grouped_by_criteria = zip(map(lambda g: g[0], grouped_by_criteria), arguments)
-		criteria_pattern_pair = map(lambda p: (p[0], re.compile(p[1])), grouped_by_criteria)
+		criteria_pattern_pair = map(lambda p: (p[0], re.compile(p[1]) if p[1] != K.NONE else K.NONE), grouped_by_criteria)
 		condition = self._get_search_condition(criteria_pattern_pair, func)
 		found = filter(condition, map(NodesManager.get_node, NodesManager.get_all_names()))
 		return found
@@ -399,4 +400,7 @@ class CategorierCli(Cli):
 		except KeyError:
 			if criterion == Keywords.MEMO:
 				return bool(pattern.search(node.name))
-			return False
+		except AttributeError:
+			if pattern == Keywords.NONE:
+				return criterion not in node
+		return False
