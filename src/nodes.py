@@ -88,6 +88,10 @@ class NodesManager(DataManager):
 		return cls._data.keys()
 
 	@classmethod
+	def get_all_nodes(cls) -> Iterable[Node]:
+		return map(cls.get_node, cls.get_all_names())
+
+	@classmethod
 	def _get_node_from_data(cls, name: str) -> Node:
 		node_data = cls._data[name]
 		node = cls.create_node_from_data(name, node_data)
@@ -386,6 +390,9 @@ class Node(NodesStorageFieldPossessor, IName, dict):
 
 	def get(self, key: str) -> str | list:
 		return self[key]
+
+	def put(self, key: str, value: str) -> None:
+		self[key] = value
 
 	def __setattr__(self, name, value):
 		match name:
