@@ -41,3 +41,21 @@ class SearchTest(AbstractTest):
 
 	#TODO: write a test for list values
 
+	@parameterized.expand([
+		('all_default', '', []),
+		('all_with_argument', 'all', []),
+		('concrete', 'Poland', []),
+	])
+	def test_show(self, name: str, to_show: str, e_lines: list):
+		countries = 'Poland', 'Portugal', 'Czechia', 'Peru', 'Colombia', 'Chile'
+		continent_key = 'continent'
+		continents = list(chain(repeat('Europe', 3), repeat('America', 2)))  # Chile without a value set
+		NodesManager.add_nodes(*countries)
+		for country, continent in zip(countries, continents):
+			NodesManager.get_node(country).put(continent_key, continent)
+
+		lines = SmartList()
+		self.cli.set_out_stream(lines.__iadd__)
+		self.cli.parse(f'm {K.SHOW} {to_show}')
+
+		self.fail(NotImplementedError.__name__)
