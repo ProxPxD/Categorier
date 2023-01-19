@@ -23,6 +23,7 @@ class Keywords:
 	CHANGE = 'change'
 	RENAME = 'rename'
 	SEARCH = 'search'
+	SHOW = 'show'
 
 	FLAT_SHORT = '-f'
 	FLAT_LONG = '--flat'
@@ -34,6 +35,7 @@ class Keywords:
 	AND = 'and'
 	OR = 'or'
 	JUST = 'just'
+	ALL = 'all'
 
 	NAME = 'name'
 	NODE = 'node'

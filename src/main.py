@@ -17,7 +17,7 @@ def main():
 
 
 def get_args_for_test():
-    return shlex('m add test_node2 test_node')
+    return shlex('m')
 
 
 if __name__ == '__main__':
