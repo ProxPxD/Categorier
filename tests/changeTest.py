@@ -57,8 +57,8 @@ class ChangeTest(AbstractTest):
 		self.assertEqual(new_setting_value, node.get(setting_name), 'value not changed')
 
 	@parameterized.expand([
-		('change_by_value', ['Muhhamad', 'in', 'Hatimi'], 'in', 'ibn', f'{K.CHANGE} {K.VALUE}'),
-		('change_by_number', ['Muhhamad', 'in', 'Hatimi'], 'in', 2, f'{K.CHANGE} {K.VALUE}'),
+		('change_by_value', ['Muhhamad', 'int', 'Hatimi'], 'int', 'ibn', f'{K.CHANGE} {K.VALUE}'),
+		('change_by_number', ['Muhhamad', 'int', 'Hatimi'], 'int', 2, f'{K.CHANGE} {K.VALUE}'),
 	])
 	def test_change_concrete_value(self, name: str, e_values: list[str], new_value: str, old_value: str, change_way: str):
 		node_name = 'n'
@@ -71,4 +71,4 @@ class ChangeTest(AbstractTest):
 
 		node = NodesManager.get_node(node_name)
 		self.assertIn(key, node.keys())
-		self.assertIn(e_values, node[key])
+		self.assertCountEqual(e_values, node[key])

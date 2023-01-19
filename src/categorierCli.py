@@ -450,8 +450,24 @@ class CategorierCli(Cli):
 
 	def _create_value_change_node(self):
 		self._change_value_node = self._change_node.add_node(Keywords.VALUES, Keywords.VALUE, Keywords.VAL)
-		self._change_value_node.set_params('old', 'new')
-		self._change_value_node.add_action(self._change_node_action)
+		self._change_value_node.set_possible_param_order('key new')
+		self._change_value_node.set_possible_param_order('key old new')
+		self._change_value_node.get_param('old').set_default(None)
+		self._change_value_node.add_action(self._change_node_value_action)
 
-	def _change_node_action(self):
-		pass
+	def _change_node_value_action(self):
+		key: str = self._change_value_node.get_param('key').get()
+		old: str = self._change_value_node.get_param('old').get()
+		new: str = self._change_value_node.get_param('new').get()
+		node_names = self._prep_flag.get_as_list()
+		for node_name in node_names:
+			node = NodesManager.get_node(node_name)
+			is_old_none = old is None
+			is_list = isinstance(node[key], list)
+			if is_old_none and not is_list:
+				node[key] = new
+			elif not is_old_none and is_list:
+				elems: list = node[key]
+				index = int(old)-1 if old.isnumeric() else elems.index(old)
+				del elems[index]
+				elems.insert(index, new)
