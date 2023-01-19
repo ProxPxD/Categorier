@@ -377,9 +377,10 @@ class CategorierCli(Cli):
 		arguments = self._search_node.get_param(Keywords.ARGUMENTS).get_as_list()
 		criteria = self._prep_flag.get_as_list()
 		func = all if K.AND in criteria else any if K.OR in criteria else None
-		grouped = split_at(criteria, lambda w: w in (K.AND, K.OR), keep_separator=False)
-		criteria_argument_pair = zip(map(lambda g: g[0], grouped), arguments) if arguments else chunked(grouped, 2, strict=True)
-		criteria_pattern_pair = map(lambda p: (p[0], re.compile(p[1])), criteria_argument_pair)
+		grouped_by_criteria = split_at(criteria, lambda w: w in (K.AND, K.OR), keep_separator=False)
+		if arguments:
+			grouped_by_criteria = zip(map(lambda g: g[0], grouped_by_criteria), arguments)
+		criteria_pattern_pair = map(lambda p: (p[0], re.compile(p[1])), grouped_by_criteria)
 		condition = self._get_search_condition(criteria_pattern_pair, func)
 		found = filter(condition, map(NodesManager.get_node, NodesManager.get_all_names()))
 		return found
