@@ -30,7 +30,7 @@ class SearchTest(AbstractTest):
 		continents = list(chain(repeat('Europe', 3), repeat('America', 2)))  # Chile without a value set
 		NodesManager.add_nodes(*countries)
 		for country, continent in zip(countries, continents):
-			self.cli.parse(f'm {K.ADD} {country} {K.SET} {continent_key} {continent}')
+			NodesManager.get_node(country).put(continent_key, continent)
 
 		lines = SmartList()
 		self.cli.set_out_stream(lines.__iadd__)
