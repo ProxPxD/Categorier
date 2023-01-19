@@ -368,9 +368,9 @@ class CategorierCli(Cli):
 		criteria = self._prep_flag.get_as_list()
 		if not criteria:
 			self._prep_flag.get_storage().append(Keywords.MEMO)
-		found = self._search_by_criteria()
-		for name in found:  # TODO: temporal printing
-			print(name)
+		found = list(self._search_by_criteria())
+		for i, node in enumerate(found):  # TODO: temporal printing
+			self.out(f'{i+1}) {node.name}')  # TODO implement the out in smartcli
 
 	def _search_by_criteria(self):
 		K = Keywords
@@ -394,8 +394,8 @@ class CategorierCli(Cli):
 
 	def _verify_criterion(self, criterion, pattern, node):
 		try:
-			return pattern.search(node.get(criterion))
+			return bool(pattern.search(node.get(criterion)))
 		except KeyError:
 			if criterion == Keywords.MEMO:
-				return pattern.search(node.name)
+				return bool(pattern.search(node.name))
 			return False
