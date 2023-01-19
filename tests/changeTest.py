@@ -13,7 +13,6 @@ class ChangeTest(AbstractTest):
 	@parameterized.expand([
 		('just_change', K.CHANGE),
 		('change_node', f'{K.CHANGE} {K.NODE}'),
-		('change_name', f'{K.CHANGE} {K.NAME}'),
 		('rename', f'{K.RENAME}'),
 	])
 	def test_change_node(self, node_name: str, change_command: str):
@@ -24,7 +23,6 @@ class ChangeTest(AbstractTest):
 
 	@parameterized.expand([
 		('just_change', 'firstname', 'name', 'Pavel',  K.CHANGE),
-		('change_name', 'firstname', 'name', 'Pavel', f'{K.CHANGE} {K.NAME}'),
 		('rename', 'firstname', 'name', 'Pavel', f'{K.RENAME}'),
 	])
 	def test_change_setting_name(self, node_name: str, new_setting_name: str, setting_name: str, setting_value: str, change_command: str):
@@ -39,12 +37,12 @@ class ChangeTest(AbstractTest):
 			self.fail('node name changed')
 
 		self.assertIn(new_setting_name, node.keys())
-		self.assertEqual(setting_value, node.get(setting_name))
+		self.assertEqual(setting_value, node.get(new_setting_name))
 
 	@parameterized.expand([
-		('change_value', 'name', 'name', 'Pavel', f'{K.CHANGE} {K.VALUE}'),
+		('change_value', 'name', 'default_name', 'Pavel', f'{K.CHANGE} {K.VALUE}'),
 	])
-	def test_change_setting_name(self, node_name: str, setting_name: str, setting_value: str, new_setting_value: str, change_command: str):
+	def test_change_value(self, node_name: str, setting_name: str, setting_value: str, new_setting_value: str, change_command: str):
 		node = NodesManager.add_node(node_name)
 		node[setting_name] = setting_value
 

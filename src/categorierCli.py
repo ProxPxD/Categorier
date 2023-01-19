@@ -103,6 +103,8 @@ class CategorierCli(Cli):
 		self._delete_just_ancestor_node: VisibleNode = None
 
 		self._search_node: VisibleNode = None
+		self._change_node: VisibleNode = None
+		self._change_value_node: VisibleNode = None
 
 		self._argument_collection = self.root.add_collection('argument_collection')
 		self._create_general_flags()
@@ -112,6 +114,7 @@ class CategorierCli(Cli):
 		self._create_unset_node()
 		self._create_delete_node()
 		self._create_search_node()
+		self._create_change_node()
 
 	def _create_general_flags(self):
 		K = Keywords
@@ -404,3 +407,51 @@ class CategorierCli(Cli):
 			if pattern == Keywords.NONE:
 				return criterion not in node
 		return False
+
+	def _create_change_node(self):
+		self._create_main_change_node()
+		self._change_node.add_node(self._create_generic_change_node(Keywords.NODE))
+		self._create_rename_node()
+		self._create_value_change_node()
+
+	def _create_main_change_node(self):
+		self._change_node = self.root.add_node(Keywords.CHANGE)
+		self._change_node.set_params('old', 'new')
+		self._change_node.add_action_when_is_active(self._change_key_name, self._prep_flag)
+		self._change_node.add_action_when_is_inactive(self._change_node_name, self._prep_flag)
+
+	def _create_generic_change_node(self, name) -> VisibleNode:
+		node = VisibleNode(name)
+		node.set_params('old', 'new')
+		node.add_action_when_is_active(self._change_node_name, self._prep_flag)
+		return node
+
+	def _create_rename_node(self):
+		rename_node = self.root.add_node(Keywords.RENAME)
+		rename_node.set_params('old', 'new')
+		old, new = rename_node.get_params('old', 'new')
+		rename_node.add_action_when_is_active(lambda: self._change_key_name(old.get(), new.get()), self._prep_flag)
+		rename_node.add_action_when_is_inactive(self._change_node_name, self._prep_flag)
+
+	def _change_node_name(self, old=None, new=None):
+		old = old or self._change_node.get_param('old').get()
+		new = new or self._change_node.get_param('new').get()
+		node = NodesManager.get_node(old)
+		NodesManager.create_node_from_data(new, node.to_dict()[old])
+
+	def _change_key_name(self, old=None, new=None):
+		old = old or self._change_node.get_param('old').get()
+		new = new or self._change_node.get_param('new').get()
+		node_names = self._prep_flag.get_as_list()
+		for node_name in node_names:
+			node = NodesManager.get_node(node_name)
+			node[new] = node[old]
+			del node[old]
+
+	def _create_value_change_node(self):
+		self._change_value_node = self._change_node.add_node(Keywords.VALUES, Keywords.VALUE, Keywords.VAL)
+		self._change_value_node.set_params('old', 'new')
+		self._change_value_node.add_action(self._change_node_action)
+
+	def _change_node_action(self):
+		pass

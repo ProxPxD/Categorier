@@ -39,3 +39,5 @@ class SearchTest(AbstractTest):
 
 		self.assertCountEqual(e_results, lines)
 
+	#TODO: write a test for list values
+
