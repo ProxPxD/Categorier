@@ -44,11 +44,11 @@ class SearchTest(AbstractTest):
 	#TODO: write a test for list values
 
 	@parameterized.expand([
-		('all_default', '', []),
-		('all_with_argument', 'all', []),
-		('concrete', 'Poland', []),
+		('all_default', '', ['Poland', 'Portugal', 'Czechia', 'Peru', 'Colombia', 'Chile']),
+		('all_with_argument', 'all', ['Poland', 'Portugal', 'Czechia', 'Peru', 'Colombia', 'Chile']),
+		('concrete', 'Poland', ['Poland']),
 	])
-	def test_show(self, name: str, to_show: str, e_lines: list):
+	def test_show(self, name: str, to_show: str, e_values: list):
 		countries = 'Poland', 'Portugal', 'Czechia', 'Peru', 'Colombia', 'Chile'
 		continent_key = 'continent'
 		continents = list(chain(repeat('Europe', 3), repeat('America', 2)))  # Chile without a value set
@@ -59,5 +59,9 @@ class SearchTest(AbstractTest):
 		lines = SmartList()
 		self.cli.set_out_stream(lines.__iadd__)
 		self.cli.parse(f'm {K.SHOW} {to_show}')
-
-		self.fail(NotImplementedError.__name__)
+		result = '\n'.join(lines)
+		for country in countries:
+			if country in e_values:
+				self.assertIn(country, result)
+			else:
+				self.assertNotIn(country, result)

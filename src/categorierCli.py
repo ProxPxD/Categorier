@@ -106,6 +106,7 @@ class CategorierCli(Cli):
 		self._delete_just_ancestor_node: VisibleNode = None
 
 		self._search_node: VisibleNode = None
+		self._show_node: VisibleNode = None
 		self._change_node: VisibleNode = None
 		self._change_value_node: VisibleNode = None
 
@@ -116,6 +117,7 @@ class CategorierCli(Cli):
 		self._create_set_node()
 		self._create_unset_node()
 		self._create_delete_node()
+		self._create_show_node()
 		self._create_search_node()
 		self._create_change_node()
 
@@ -477,3 +479,18 @@ class CategorierCli(Cli):
 				index = int(old)-1 if old.isnumeric() else elems.index(old)
 				del elems[index]
 				elems.insert(index, new)
+
+	def _create_show_node(self):
+		self._show_node = self.root.add_node(Keywords.SHOW)
+		self._show_node.add_param(Keywords.NODE)
+		self._show_node.get_param(Keywords.NODE).set_default(None)
+		self._show_node.add_action(self._show_node_action)
+
+	def _show_node_action(self):
+		name = self._show_node.get_param(Keywords.NODE).get()
+		if name is None or name == Keywords.ALL:
+			nodes = NodesManager.get_all_nodes()
+			Printer.print_short_node_info(nodes)
+		else:
+			node = NodesManager.get_node(name)
+			Printer.print_detailed_node_info(node)
