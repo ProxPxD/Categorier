@@ -38,4 +38,4 @@ class DeleteAncestorTest(AbstractTest):
 		self.cli.parse(f'm {K.DELETE} {K.JUST} {" ".join(parents_to_remove)} {K.FROM} {name}')
 
 		node = NodesManager.get_node(name)
-		self.assertCountEqual(e_parents, node.parents)
+		self.assertCountEqual(e_parents, node.parents.names)
