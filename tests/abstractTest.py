@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import abc
 import unittest
+from typing import Iterable
 
 from categorierCli import CategorierCli
 from nodes import NodesManager, Paths
@@ -98,3 +99,29 @@ class AbstractTest(unittest.TestCase, abc.ABC):
     def run(self, result: unittest.result.TestResult | None = ...) -> unittest.result.TestResult | None:
         self.currentResult = result
         unittest.TestCase.run(self, result)
+
+    def get_parameterized_methods_of_current_test(self, *method_nums) -> Iterable:
+        if not method_nums:
+            return iter([])
+
+        method_prefix = self.get_method_name() + '_'
+        child_methods = [name for name in dir(self) if name.startswith(method_prefix)]
+
+        if method_nums[0] is None:
+            method_nums = range(len(child_methods))
+        number_marks = (name.removeprefix(method_prefix).split('_')[0] for name in child_methods)
+        zero_count = len(next((num for num in number_marks if all((ch == '0' for ch in num))), ''))
+
+        method_prefixes = (f'{method_prefix}{str(i).zfill(zero_count)}' for i in method_nums)
+        methods = (getattr(self, actual_name) for expected_prefix in method_prefixes for actual_name in child_methods if
+                   actual_name.startswith(expected_prefix))
+        return methods
+
+    def run_current_test_with_params(self, *method_nums):  # TODO: support custom names
+        '''
+        Run in a method declared after the desired parametrized method and named the same as it
+        :param method_nums:
+        :return:
+        '''
+        for method in self.get_parameterized_methods_of_current_test(*method_nums):
+            method()
