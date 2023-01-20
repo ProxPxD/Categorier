@@ -3,12 +3,12 @@ from itertools import chain, repeat
 from parameterized import parameterized
 from smartcli.nodes.smartList import SmartList
 
-from abstractTest import AbstractTest
-from nodes import NodesManager
+from abstractCategorierTest import AbstractCategorierTest
 from categorierCli import Keywords as K
+from nodes import NodesManager
 
 
-class SearchTest(AbstractTest):
+class SearchTest(AbstractCategorierTest):
 	@classmethod
 	def _get_test_name(cls) -> str:
 		return 'Search'

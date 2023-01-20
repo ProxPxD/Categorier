@@ -1,12 +1,11 @@
 from parameterized import parameterized
 
-from abstractTest import AbstractTest
-
+from abstractCategorierTest import AbstractCategorierTest
 from categorierCli import Keywords as K
 from nodes import NodesManager, Node
 
 
-class MultipleNodesTest(AbstractTest):
+class MultipleNodesTest(AbstractCategorierTest):
 	@classmethod
 	def _get_test_name(cls) -> str:
 		return 'Multiple Nodes'

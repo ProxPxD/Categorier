@@ -1,11 +1,11 @@
 from parameterized import parameterized
 
-from abstractTest import AbstractTest
-from nodes import NodesManager
+from abstractCategorierTest import AbstractCategorierTest
 from categorierCli import Keywords as K
+from nodes import NodesManager
 
 
-class DeleteAncestorTest(AbstractTest):
+class DeleteAncestorTest(AbstractCategorierTest):
 	@classmethod
 	def _get_test_name(cls) -> str:
 		return 'Delete Just Ancestor'

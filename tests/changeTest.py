@@ -1,11 +1,11 @@
 from parameterized import parameterized
 
-from abstractTest import AbstractTest
+from abstractCategorierTest import AbstractCategorierTest
 from categorierCli import Keywords as K
 from nodes import NodesManager
 
 
-class ChangeTest(AbstractTest):
+class ChangeTest(AbstractCategorierTest):
 	@classmethod
 	def _get_test_name(cls) -> str:
 		return 'Change'

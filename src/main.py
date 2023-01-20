@@ -10,6 +10,7 @@ from nodes import NodesManager
 
 def main():
     in_debug = True
+    NodesManager.loa
     cli = CategorierCli()
     args = sys.argv if not in_debug else get_args_for_test()
     cli.parse(args)

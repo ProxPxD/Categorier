@@ -5,7 +5,7 @@ import unittest
 from typing import Iterable
 
 from categorierCli import CategorierCli
-from nodes import NodesManager, Paths
+from nodes import Paths
 
 
 class AbstractTest(unittest.TestCase, abc.ABC):
@@ -43,7 +43,6 @@ class AbstractTest(unittest.TestCase, abc.ABC):
             return
         super().setUp()
         print('- ', self.get_method_name(), end=' ... ')
-        NodesManager.load_data(self.test_path)
 
     def tearDown(self) -> None:
         if not self.get_method_name().startswith('test_'):

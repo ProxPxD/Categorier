@@ -4,7 +4,7 @@ from itertools import chain, repeat
 from re import Pattern
 from typing import Iterable, Callable
 
-from more_itertools import split_at, unique_everseen, chunked
+from more_itertools import split_at, unique_everseen
 from smartcli import Cli, Flag, VisibleNode, CliCollection
 
 from exceptions import NodeExistsInDataBase
@@ -61,6 +61,8 @@ class Keywords:
 	DESCRIPTION = 'description'
 	DESCR = 'descr'
 	DESCRIPTION_FLAG = '-d'
+	HELP_LONG = '--help'
+	HELP_SHORT = '-h'
 
 
 # Redesign
@@ -124,6 +126,10 @@ class CategorierCli(Cli):
 	def set_out_stream(self, out):
 		super().set_out_stream(out)
 		Printer.out = out
+
+	def _make_help(self):
+		self.add_general_help_flag(Keywords.HELP_LONG, Keywords.HELP_SHORT)
+		self.root.add_action(self.print_help)
 
 	def _create_general_flags(self):
 		K = Keywords
