@@ -358,14 +358,28 @@ class CategorierCli(Cli):
 	def _delete_just_ancestor_node_action(self):
 		to_deletes = self._delete_just_ancestor_node.get_param(Keywords.NODES).get_as_list()
 		node_names = self._prep_flag.get_as_list()
+		to_delete_nodes = list(map(NodesManager.get_node, to_deletes))
+		nodes = list(map(NodesManager.get_node, node_names))
+		for node in nodes:
+			between_node_names = list(self._get_between_nodes(node, to_delete_nodes))
+			node.remove_parents(*between_node_names)
+			exterior_nodes = list(self._extract_exterior_nodes(between_node_names))
+			to_add = list(filter(lambda n: n not in node.parents.names , exterior_nodes))
+			node.add_parents(*to_add)
 
-		for node_name in node_names:
-			node = NodesManager.get_node(node_name)
-			for to_delete in to_deletes:
-				self._delete_just_ancestor_helper(node, to_delete)
+	def _get_between_nodes(self, node: Node, to_deletes: list[Node]) -> set[str]:
+		between_node_names = set(map(Node.get_name, to_deletes))
+		ancestors = set(node.get_all_ancestors_names())
+		for to_delete in to_deletes:
+			between_node_names |= ancestors & set(to_delete.get_all_descendants_names())
 
-	def _delete_just_ancestor_helper(self, node: Node, to_delete: str):
-		raise NotImplementedError
+		return between_node_names
+
+	def _extract_exterior_nodes(self, between_node_names: Iterable[str]) -> Iterable[str]:
+		between_node_names = list(between_node_names)
+		nodes = list(map(NodesManager.get_node, between_node_names))
+		extracted = (parent.name for node in nodes for parent in node.parents if parent.name not in between_node_names)
+		return set(extracted)
 
 	def _create_delete_values_node(self):
 		self._delete_values_node = self._delete_node.add_node(Keywords.VALUES, Keywords.VALUE, Keywords.VAL)

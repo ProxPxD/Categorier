@@ -341,6 +341,8 @@ class NodesStorageFieldPossessor(IName):
 			self._add_member(child, MemberTypes.CHILDREN)
 
 	def _add_member(self, to_put, further_type: str) -> None:
+		if isinstance(to_put, Node):
+			to_put = to_put.name
 		if not to_put:
 			return
 		further = self.get_further(further_type)
