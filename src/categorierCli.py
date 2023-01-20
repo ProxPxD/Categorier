@@ -9,6 +9,7 @@ from smartcli import Cli, Flag, VisibleNode, CliCollection
 
 from exceptions import NodeExistsInDataBase
 from nodes import NodesManager, MemberTypes, Node
+from printer import Printer
 
 
 @dataclass
@@ -117,6 +118,10 @@ class CategorierCli(Cli):
 		self._create_delete_node()
 		self._create_search_node()
 		self._create_change_node()
+
+	def set_out_stream(self, out):
+		super().set_out_stream(out)
+		Printer.out = out
 
 	def _create_general_flags(self):
 		K = Keywords
@@ -374,9 +379,8 @@ class CategorierCli(Cli):
 		criteria = self._prep_flag.get_as_list()
 		if not criteria:
 			self._prep_flag.get_storage().append(Keywords.MEMO)
-		found = list(self._search_by_criteria())
-		for i, node in enumerate(found):  # TODO: temporal printing
-			self.out(node.name)  # TODO implement the out in smartcli
+		found = self._search_by_criteria()
+		Printer.print_short_node_info(found)
 
 	def _search_by_criteria(self):
 		K = Keywords

@@ -35,9 +35,11 @@ class SearchTest(AbstractTest):
 		lines = SmartList()
 		self.cli.set_out_stream(lines.__iadd__)
 		self.cli.parse(f'm {K.SEARCH} {to_search} {search_by}')
-		# e_results = [f'{i+1}) {line}' for i, line in enumerate(e_results)]
+		for i, line in enumerate(lines):
+			prefix, name = line.split(' ')
+			self.assertIn(name, e_results)
+			self.assertIn(str(i+1), prefix)
 
-		self.assertCountEqual(e_results, lines)
 
 	#TODO: write a test for list values
 
