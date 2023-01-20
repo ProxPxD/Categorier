@@ -4,9 +4,6 @@ import abc
 import unittest
 from typing import Iterable
 
-from categorierCli import CategorierCli
-from nodes import Paths
-
 
 class AbstractTest(unittest.TestCase, abc.ABC):
 
@@ -17,10 +14,6 @@ class AbstractTest(unittest.TestCase, abc.ABC):
     failure = 0
     errors = 0
     skipped = 0
-
-    cli = CategorierCli()
-
-    test_path = Paths.RESOURCES / 'test_data.yml'
 
     @classmethod
     def print_sep_with_text(cls, text: str, sep: str = '*') -> None:

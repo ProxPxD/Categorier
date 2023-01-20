@@ -2,10 +2,14 @@ from abc import ABC
 from typing import Iterable
 
 from abstractTest import AbstractTest
-from nodes import NodesManager
+from categorierCli import CategorierCli
+from nodes import NodesManager, Paths
 
 
 class AbstractCategorierTest(AbstractTest, ABC):
+
+	test_path = Paths.RESOURCES / 'test_data.yml'
+	cli = CategorierCli()
 
 	def setUp(self) -> None:
 		super().setUp()
