@@ -1,5 +1,3 @@
-from itertools import chain
-
 from parameterized import parameterized
 
 from abstractCategorierTest import AbstractCategorierTest
@@ -124,10 +122,10 @@ class NodeConnectingTest(AbstractCategorierTest):
 		self.assertCountEqual(e_descendants, list(node.get_all_descendants_names()), 'Amount of descendants does not match')
 
 	@parameterized.expand([
-		('normal_removal', [['p2']], ['c'], [['p1', 'p2']], ['p1']),
+		('normal_deletion', [['p2']], ['c'], [['p1', 'p2']], ['p1']),
 		('common_parent', [['p1'], ['p3']], ['c1', 'c2'], [['p1', 'p2'], ['p2', 'p3']], ['p2']),
 	])
-	def test_remove_parent_nodes(self, name: str, e_all_parents: list[str], children: list[str], all_parents: list[str], to_removes: list[str]):
+	def test_delete_parent_nodes(self, name: str, e_all_parents: list[str], children: list[str], all_parents: list[str], to_removes: list[str]):
 		for child, parents in zip(children, all_parents):
 			for parent in parents:
 				self.cli.parse(f'm {K.ADD} {parent}')
@@ -141,10 +139,10 @@ class NodeConnectingTest(AbstractCategorierTest):
 			self.assertCountEqual(e_parents, node.parents.names, 'parent node has not been deleted')
 
 	@parameterized.expand([
-		('normal_removal', [['c2']], ['p'], [['c1', 'c2']], ['c1']),
+		('normal_deletion', [['c2']], ['p'], [['c1', 'c2']], ['c1']),
 		('common_children', [['c1'], ['c3']], ['p1', 'p2'], [['c1', 'c2'], ['c2', 'c3']], ['c2']),
 	])
-	def test_remove_children_nodes(self, name: str, e_all_children: list[str], parents: list[str], all_children: list[str], to_removes: list[str]):
+	def test_delete_children_nodes(self, name: str, e_all_children: list[str], parents: list[str], all_children: list[str], to_removes: list[str]):
 		for node in self.flatten_string_lists(parents, all_children):
 			self.cli.parse(f'm {K.ADD} {node}')
 
@@ -158,3 +156,16 @@ class NodeConnectingTest(AbstractCategorierTest):
 		for parent, e_children in zip(parents, e_all_children):
 			node = NodesManager.get_node(parent)
 			self.assertCountEqual(e_children, node.children.names, 'parent node has not been deleted')
+
+	@parameterized.expand([
+		('one', ['p', 'a', 'b', 'c'], [1], ['a', 'b', 'c']),
+		('many', ['p', 'a', 'b', 'c'], [2, 3, 4], ['p']),
+	])
+	def test_delete_by_number(self, name: str, to_creates: list[str], to_deletes: list[int], e_nodes: list[str]):
+		for to_create in to_creates:
+			NodesManager.add_node(to_create)
+
+		self.cli.parse(f'm {K.DELETE} {" ".join(map(str, to_deletes))}')
+
+		all_names = list(NodesManager.get_all_names())
+		self.assertCountEqual(e_nodes, all_names)

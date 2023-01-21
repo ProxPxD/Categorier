@@ -338,8 +338,10 @@ class CategorierCli(Cli):
 		self._delete_node.add_action(self._delete_action)
 
 	def _delete_action(self):
-		to_deletes = self._delete_node.get_param(Keywords.NODES).get_as_list()
-		for to_delete in to_deletes:
+		to_deletes: list[str] = self._delete_node.get_param(Keywords.NODES).get_as_list()
+		for i, to_delete in enumerate(to_deletes):
+			if to_delete.isnumeric():
+				to_delete = list(NodesManager.get_all_names())[int(to_delete)-1 - i]
 			NodesManager.delete_node(to_delete)
 
 	def _create_delete_description_node(self):

@@ -1,14 +1,14 @@
 from __future__ import annotations
 
+import operator as op
 from abc import ABC
 from dataclasses import dataclass
 from functools import reduce
 from itertools import repeat, chain
 from pathlib import Path
-from typing import Iterable, Any
+from typing import Iterable
 
 import yaml
-import operator as op
 
 from exceptions import NodeExistsInDataBase
 
@@ -166,7 +166,6 @@ class NodesManager(DataManager):
 	@classmethod
 	def get_data(cls) -> dict:
 		return cls._data
-
 
 #########
 # Nodes #
