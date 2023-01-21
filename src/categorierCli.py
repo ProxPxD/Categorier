@@ -86,7 +86,6 @@ class CategorierCli(Cli):
 
 	def __init__(self, **kwargs):
 		super().__init__(**kwargs)
-		NodesManager.load_data()
 		self._add_node: VisibleNode = None
 		self._add_many_node: VisibleNode = None
 		self._add_description_node: VisibleNode = None
@@ -174,7 +173,8 @@ class CategorierCli(Cli):
 
 			node = NodesManager.add_node(name, parents=parents, children=children)
 			descriptions = self._description_flag.get_as_list()
-			node[MemberTypes.DESCRIPTIONS].extend(descriptions)
+			if descriptions:
+				node[MemberTypes.DESCRIPTIONS].extend(descriptions)
 
 			if set_args:
 				self.parse(set_args)
@@ -342,7 +342,7 @@ class CategorierCli(Cli):
 		for i, to_delete in enumerate(to_deletes):
 			if to_delete.isnumeric():
 				to_delete = list(NodesManager.get_all_names())[int(to_delete)-1 - i]
-			NodesManager.delete_node(to_delete)
+			NodesManager.delint(to_delete)-1 - iete_node(to_delete)
 
 	def _create_delete_description_node(self):
 		self._delete_description_node = self._delete_node.add_node(Keywords.DESCRIPTION, Keywords.DESCRIPTIONS, Keywords.DESCR)

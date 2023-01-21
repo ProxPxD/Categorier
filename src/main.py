@@ -12,10 +12,9 @@ def main():
     in_debug = True
     if not in_debug:
         args = sys.argv
-        NodesManager.load_data(Paths.RESOURCES / 'debug.yml')
-        # NodesManager.load_data(Paths.DATABASE)
-    else:
         NodesManager.load_data(Paths.DATABASE)
+    else:
+        NodesManager.load_data(Paths.RESOURCES / 'debug.yml')
         args = get_args_for_test()
 
     cli = CategorierCli()
@@ -24,8 +23,7 @@ def main():
 
 
 def get_args_for_test():
-    return shlex('mem del 1 2 3 ')
-    # return shlex('mem add dziecko Yay ')
+    return shlex('mem add dziecko Yay ')
 
 
 if __name__ == '__main__':

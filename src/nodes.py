@@ -418,11 +418,15 @@ class Node(NodesStorageFieldPossessor, IName, dict):
 				self.__dict__[name] = value
 
 	def to_dict(self) -> dict:
-		return {self.name: {
+		result = {self.name: {
 			**self.parents.to_dict(),
 			**self.children.to_dict(),
 			**self
 		}}
+		for key, val in self.items():
+			if not val:
+				result[self.name].pop(key)
+		return result
 
 	def __hash__(self):
 		return hash(self.name)
