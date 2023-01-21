@@ -9,7 +9,7 @@ from nodes import NodesManager, Paths
 
 
 def main():
-    in_debug = True
+    in_debug = False
     if not in_debug:
         args = sys.argv
         NodesManager.load_data(Paths.DATABASE)
@@ -23,7 +23,7 @@ def main():
 
 
 def get_args_for_test():
-    return shlex('mem add dziecko Yay ')
+    return shlex('mem')
 
 
 if __name__ == '__main__':

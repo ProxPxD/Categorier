@@ -1,7 +1,5 @@
-import re
 from dataclasses import dataclass
 from itertools import chain, repeat
-from re import Pattern
 from typing import Iterable, Callable
 
 from more_itertools import split_at, unique_everseen
@@ -342,7 +340,9 @@ class CategorierCli(Cli):
 		for i, to_delete in enumerate(to_deletes):
 			if to_delete.isnumeric():
 				to_delete = list(NodesManager.get_all_names())[int(to_delete)-1 - i]
-			NodesManager.delint(to_delete)-1 - iete_node(to_delete)
+			else:
+				to_delete
+			NodesManager.delete_node(to_delete)
 
 	def _create_delete_description_node(self):
 		self._delete_description_node = self._delete_node.add_node(Keywords.DESCRIPTION, Keywords.DESCRIPTIONS, Keywords.DESCR)
@@ -403,40 +403,15 @@ class CategorierCli(Cli):
 		criteria = self._prep_flag.get_as_list()
 		if not criteria:
 			self._prep_flag.get_storage().append(Keywords.MEMO)
-		found = self._search_by_criteria()
-		Printer.print_short_node_info(found)
-
-	def _search_by_criteria(self):
-		K = Keywords
 		arguments = self._search_node.get_param(Keywords.ARGUMENTS).get_as_list()
 		criteria = self._prep_flag.get_as_list()
+		K = Keywords
 		func = all if K.AND in criteria else any if K.OR in criteria else None
-		grouped_by_criteria = split_at(criteria, lambda w: w in (K.AND, K.OR), keep_separator=False)
-		if arguments:
-			grouped_by_criteria = zip(map(lambda g: g[0], grouped_by_criteria), arguments)
-		criteria_pattern_pair = map(lambda p: (p[0], re.compile(p[1]) if p[1] != K.NONE else K.NONE), grouped_by_criteria)
-		condition = self._get_search_condition(criteria_pattern_pair, func)
-		found = filter(condition, map(NodesManager.get_node, NodesManager.get_all_names()))
-		return found
-
-	def _get_search_condition(self, criteria_pattern_pair: Iterable[tuple[str, Pattern]], func: Callable):
-		criteria_pattern_pair_list = list(criteria_pattern_pair)
-		if func is not None:
-			return lambda node: func((self._verify_criterion(criterion, pattern, node) for criterion, pattern in criteria_pattern_pair_list))
-		else:
-			criterion, pattern = criteria_pattern_pair_list[0]
-			return lambda node: self._verify_criterion(criterion, pattern, node)
-
-	def _verify_criterion(self, criterion, pattern, node):
-		try:
-			return bool(pattern.search(node.get(criterion)))
-		except KeyError:
-			if criterion == Keywords.MEMO:
-				return bool(pattern.search(node.name))
-		except AttributeError:
-			if pattern == Keywords.NONE:
-				return criterion not in node
-		return False
+		grouped_by_criteria = list(split_at(criteria, lambda w: w in (K.AND, K.OR), keep_separator=False))
+		if not arguments:
+			criteria, arguments = zip(*grouped_by_criteria)
+		found = NodesManager.search_node(criteria, arguments, func)
+		Printer.print_short_node_info(found)
 
 	def _create_change_node(self):
 		self._create_main_change_node()

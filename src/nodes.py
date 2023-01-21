@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import operator as op
+import re
 from abc import ABC
 from dataclasses import dataclass
 from functools import reduce
 from itertools import repeat, chain
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Pattern, Callable
 
 import yaml
 
@@ -52,6 +53,13 @@ class DataManager:
 
 
 class NodesManager(DataManager):
+
+	@dataclass(frozen=True)
+	class SOME_KEYWORDS:
+		AND = 'and'
+		OR = 'or'
+		MEMO = 'memo'
+		NONE = 'none'
 
 	_active_nodes = dict()
 
@@ -166,6 +174,35 @@ class NodesManager(DataManager):
 	@classmethod
 	def get_data(cls) -> dict:
 		return cls._data
+
+	@classmethod
+	def search_node(cls, criteria: Iterable, arguments: Iterable, func: Callable=None):
+		K = cls.SOME_KEYWORDS
+		patterns = map(lambda a: re.compile(a) if a != K.NONE else K.NONE, arguments)
+		condition = cls._get_search_condition(criteria, patterns, func)
+		found = filter(condition, map(NodesManager.get_node, NodesManager.get_all_names()))
+		return found
+
+	@classmethod
+	def _get_search_condition(cls, criteria: Iterable[str], patterns: Iterable[Pattern], func: Callable):
+		criteria = list(criteria)
+		patterns = list(patterns)
+		if func is not None:
+			return lambda node: func((cls._verify_criterion(criterion, pattern, node) for criterion, pattern in zip(criteria, patterns)))
+		else:
+			return lambda node: cls._verify_criterion(criteria[0], patterns[0], node)
+
+	@classmethod
+	def _verify_criterion(cls, criterion, pattern, node):
+		try:
+			return bool(pattern.search(node.get(criterion)))
+		except KeyError:
+			if criterion == cls.SOME_KEYWORDS.MEMO:
+				return bool(pattern.search(node.name))
+		except AttributeError:
+			if pattern == cls.SOME_KEYWORDS.NONE:
+				return criterion not in node
+		return False
 
 #########
 # Nodes #
